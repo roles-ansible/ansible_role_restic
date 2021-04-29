@@ -14,7 +14,7 @@ on:
       - .github/**
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   lint:
@@ -32,7 +32,7 @@ jobs:
           VALIDATE_ALL_CODEBASE: false
           VALIDATE_ANSIBLE: true
           ANSIBLE_DIRECTORY: './'
-          DEFAULT_BRANCH: master
+          DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   molecule:
     name: 🧪 Molecule test
