@@ -2,10 +2,9 @@
 
 > **Beta:** This role is in beta status.
 
-![🎭 Tests](https://github.com/arillso/ansible.restic/workflows/%F0%9F%8E%AD%20Tests/badge.svg)
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=popout-square)](https://sbaerlo.ch/licence)
-[![Ansible Galaxy](https://img.shields.io/badge/ansible--galaxy-restic-blue.svg?style=popout-square)](https://galaxy.ansible.com/arillso/restic)
-[![Ansible Role](https://img.shields.io/ansible/role/d/42773.svg?style=popout-square)](https://galaxy.ansible.com/arillso/restic)
+[![🎭 Tests](https://github.com/roles-ansible/ansible_role_restic/actions/workflows/test.yml/badge.svg)](https://github.com/roles-ansible/ansible_role_restic/actions/workflows/test.yml)
+[![license](https://raw.githubusercontent.com/roles-ansible/ansible_role_restic/main/.github/license.svg)](https://github.com/roles-ansible/ansible_role_restic/blob/main/LICENSE)
+[![Ansible Galaxy](https://raw.githubusercontent.com/roles-ansible/ansible_role_restic/main/.github/galaxy.svg)](https://galaxy.ansible.com/do1jlr/restic)
 
 ## Description
 [Restic](https://github.com/restic/restic) is a versatile Go based backup
@@ -13,14 +12,14 @@ solution which supports multiple backends, deduplication and incremental
 backups.
 
 This role installs restic on a client, configures the backup repositories
-and optionally sets up cronjobs to run said backups.
+and optionally sets systemd timer or cronjobs to run the backups.
 Aditionally, it will setup executable scripts to run a Backup manually.
 
-> This Project borrows heavily from the
-> [donat-b/ansible-restic](https://github.com/donat-b/ansible-restic)
-> ansible role. We try to make this role more semver deployment friendly
-> by allowing to use version tags and keep these snapshots and adapting the
-> automated backup definition for use with windows systems.
+> This Project borrowed heavily from the
+> [donat-b/ansible-restic](https://github.com/donat-b/ansible-restic) and
+> tje [https://github.com/arillso/ansible.restic](https://github.com/arillso/ansible.restic)
+> ansible role. We try to make this role more modern by using systemd timer,
+> /etc/crontab to define backup paths, more absolute paths and less options. (no S3 Storage, No Windows...)
 
 ### Backup Scripts
 This role will create a backup script and a file with credentials usable with the `source` command on linux for each backup in the `restic_script_dir`.
