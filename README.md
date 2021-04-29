@@ -64,10 +64,10 @@ ansible-galaxy install arillso.restic
 | Name                   | Default                             | Description                                                                 |
 | ---------------------- | ----------------------------------- | --------------------------------------------------------------------------- |
 | `restic_url`           | `undefined`                         | The URL to download restic from. Use this variable to overwrite the default |
-| `restic_version`       | `'0.11.0'`                          | The version of Restic to install                                            |
+| `restic_version`       | `'0.12.0'`                          | The version of Restic to install                                            |
 | `restic_download_path` | `'/opt/restic'`                     | Download location for the restic binary                                     |
 | `restic_install_path`  | `'/usr/local/bin'`                  | Install location for the restic binary                                      |
-| `restic_script_dir`    | `'~/restic'`                        | Location of the generated backup scripts                                    |
+| `restic_script_dir`    | `'/opt/restic'`                        | Location of the generated backup scripts                                    |
 | `restic_log_dir`       | `'{{ restic_script_dir }}/log'`     | Location of the logs of the backup scripts                                  |
 | `restic_repos`         | `{}`                                | A dictionary of repositories where snapshots are stored                     |
 | `restic_backups`       | `{}` (or `[]`)                      | A list of dictionaries specifying the files and directories to be backed up |
@@ -189,4 +189,3 @@ none
 ## License
 
 This project is under the MIT License. See the [LICENSE](LICENSE) file for the full license text.
-
