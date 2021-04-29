@@ -1,7 +1,7 @@
 ---
 - name: Stat test backup file
   stat:
-    path: ~/restic/backup-test.sh
+    path: /opt/restic/backup-test.sh
   register: test_file
 - name: Check that the test backup file exists
   assert:
@@ -10,7 +10,7 @@
 
 - name: Stat test_stdin backup file
   stat:
-    path: ~/restic/backup-test_stdin.sh
+    path: /opt/restic/backup-test_stdin.sh
   register: test_stdin_file
 - name: Check that the test_stdin backup file exists
   assert:
@@ -20,7 +20,7 @@
 - name: Run the backup scripts
   shell: "./{{ item }}"
   args:
-    chdir: ~/restic/
+    chdir: /opt/restic/
   with_items:
     - backup-dicttest.sh
     - backup-test.sh
