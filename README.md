@@ -2,10 +2,9 @@
 
 > **Beta:** This role is in beta status.
 
-![🎭 Tests](https://github.com/arillso/ansible.restic/workflows/%F0%9F%8E%AD%20Tests/badge.svg)
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=popout-square)](https://sbaerlo.ch/licence)
-[![Ansible Galaxy](https://img.shields.io/badge/ansible--galaxy-restic-blue.svg?style=popout-square)](https://galaxy.ansible.com/arillso/restic)
-[![Ansible Role](https://img.shields.io/ansible/role/d/42773.svg?style=popout-square)](https://galaxy.ansible.com/arillso/restic)
+[![🎭 Tests](https://github.com/roles-ansible/ansible_role_restic/actions/workflows/test.yml/badge.svg)](https://github.com/roles-ansible/ansible_role_restic/actions/workflows/test.yml)
+[![license](https://raw.githubusercontent.com/roles-ansible/ansible_role_restic/main/.github/license.svg)](https://github.com/roles-ansible/ansible_role_restic/blob/main/LICENSE)
+[![Ansible Galaxy](https://raw.githubusercontent.com/roles-ansible/ansible_role_restic/main/.github/galaxy.svg)](https://galaxy.ansible.com/do1jlr/restic)
 
 ## Description
 [Restic](https://github.com/restic/restic) is a versatile Go based backup
@@ -13,14 +12,14 @@ solution which supports multiple backends, deduplication and incremental
 backups.
 
 This role installs restic on a client, configures the backup repositories
-and optionally sets up cronjobs to run said backups.
+and optionally sets systemd timer or cronjobs to run the backups.
 Aditionally, it will setup executable scripts to run a Backup manually.
 
-> This Project borrows heavily from the
-> [donat-b/ansible-restic](https://github.com/donat-b/ansible-restic)
-> ansible role. We try to make this role more semver deployment friendly
-> by allowing to use version tags and keep these snapshots and adapting the
-> automated backup definition for use with windows systems.
+> This Project borrowed heavily from the
+> [donat-b/ansible-restic](https://github.com/donat-b/ansible-restic) and
+> tje [https://github.com/arillso/ansible.restic](https://github.com/arillso/ansible.restic)
+> ansible role. We try to make this role more modern by using systemd timer,
+> /etc/crontab to define backup paths, more absolute paths and less options. (no S3 Storage, No Windows...)
 
 ### Backup Scripts
 This role will create a backup script and a file with credentials usable with the `source` command on linux for each backup in the `restic_script_dir`.
@@ -65,10 +64,10 @@ ansible-galaxy install arillso.restic
 | Name                   | Default                             | Description                                                                 |
 | ---------------------- | ----------------------------------- | --------------------------------------------------------------------------- |
 | `restic_url`           | `undefined`                         | The URL to download restic from. Use this variable to overwrite the default |
-| `restic_version`       | `'0.11.0'`                          | The version of Restic to install                                            |
+| `restic_version`       | `'0.12.0'`                          | The version of Restic to install                                            |
 | `restic_download_path` | `'/opt/restic'`                     | Download location for the restic binary                                     |
 | `restic_install_path`  | `'/usr/local/bin'`                  | Install location for the restic binary                                      |
-| `restic_script_dir`    | `'~/restic'`                        | Location of the generated backup scripts                                    |
+| `restic_script_dir`    | `'/opt/restic'`                        | Location of the generated backup scripts                                    |
 | `restic_log_dir`       | `'{{ restic_script_dir }}/log'`     | Location of the logs of the backup scripts                                  |
 | `restic_repos`         | `{}`                                | A dictionary of repositories where snapshots are stored                     |
 | `restic_backups`       | `{}` (or `[]`)                      | A list of dictionaries specifying the files and directories to be backed up |
@@ -190,4 +189,3 @@ none
 ## License
 
 This project is under the MIT License. See the [LICENSE](LICENSE) file for the full license text.
-
