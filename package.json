@@ -1,5 +1,0 @@
-{
-  "scripts": {
-    "changelog": "git-chglog 0.2.8.."
-  }
-}
