@@ -136,7 +136,8 @@ Available variables:
 | `keep_within`      |              no               | If set, only keeps snapshots in this time period.                                                                                                                            |
 | `keep_tag`         |              no               | If set, keep snapshots with this tags. Make sure to specify a list.                                                                                                          |
 | `prune`            |         no (`false`)          | If `true`, the `restic forget` command in the script has the [`--prune` option](https://restic.readthedocs.io/en/stable/060_forget.html#removing-backup-snapshots) appended. |
-| `scheduled`        |         no (`false`)          | If `restic_create_cron` is set to `true`, this backup is scheduled.                                                                                                          |
+| `scheduled`        |         no (`false`)          | If `restic_create_cron` is set to `true`, this backup is scheduled and tries to create a systemd timer unit. If it fails, it is creating a cronjob.                          |
+| `schedule_oncalendar` |  ``'*-*-* 02:00:00'``      | The time for the systemd timer. Please notice the randomDelaySec option. By Default the backup is done every night at 2 am (+0-4h). But only if scheduled is true.  |
 | `schedule_minute`  |           no (`*`)            | Minute when the job is run. ( 0-59, *, */2, etc )                                                                                                                            |
 | `schedule_hour`    |           no (`*`)            | Hour when the job is run. ( 0-23, *, */2, etc )                                                                                                                              |
 | `schedule_weekday` |           no (`*`)            | Weekday when the job is run.  ( 0-6 for Sunday-Saturday, *, etc )                                                                                                            |
@@ -151,7 +152,7 @@ restic_backups:
     repo: remove
     src: /path/to/data
     scheduled: true
-    schedule_hour: 3
+    schedule_oncalendar: '*-*-* 01:00:00'
 ```
 
 > You can also specify restic_backups as an array, which is a legacy feature and

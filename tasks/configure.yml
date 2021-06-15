@@ -23,4 +23,4 @@
   loop: "{{ restic_repos|dict2items }}"
   when:
     - item.value.init is defined
-    - item.value.init
+    - item.value.init|bool
