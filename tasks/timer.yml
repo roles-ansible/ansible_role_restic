@@ -70,9 +70,28 @@
         - restic_create_cron
         - item.name is defined
         - item.scheduled | default(false)
+
+    - name: delete old cronjob entry if available
+      ansible.builtin.cron:
+        name: "do1jlr.restic backup {{ item.name }}"
+        job: "CRON=true {{ restic_script_dir }}/backup-{{ item.name | replace(' ', '') }}.sh"
+        minute: '{{ item.schedule_minute | default("*") }}'
+        hour: '{{ item.schedule_hour | default("2") }}'
+        weekday: '{{ item.schedule_weekday | default("*") }}'
+        month: '{{ item.schedule_month | default("*") }}'
+        state: absent
+        cron_file: '/etc/crontab'
+        user: 'root'
+      become: true
+      no_log: true
+      with_items: '{{ restic_backups }}'
+      when:
+        - restic_create_cron
+        - item.name is defined
+        - item.scheduled | default(false)
   when: ansible_service_mgr == 'systemd'
   rescue:
-    - name: set ceonjo intead of systemd
+    - name: set cronjob intead of systemd
       set_fact:
         restic_force_cron: true
 
@@ -82,7 +101,7 @@
     name: "do1jlr.restic backup {{ item.name }}"
     job: "CRON=true {{ restic_script_dir }}/backup-{{ item.name | replace(' ', '') }}.sh"
     minute: '{{ item.schedule_minute | default("*") }}'
-    hour: '{{ item.schedule_hour | default("*") }}'
+    hour: '{{ item.schedule_hour | default("2") }}'
     weekday: '{{ item.schedule_weekday | default("*") }}'
     month: '{{ item.schedule_month | default("*") }}'
     state: present

@@ -139,7 +139,7 @@ Available variables:
 | `scheduled`        |         no (`false`)          | If `restic_create_cron` is set to `true`, this backup is scheduled and tries to create a systemd timer unit. If it fails, it is creating a cronjob. |
 | `schedule_oncalendar` |  ``'*-*-* 02:00:00'``      | The time for the systemd timer. Please notice the randomDelaySec option. By Default the backup is done every night at 2 am (+0-4h). But only if scheduled is true.  |
 | `schedule_minute`  |           no (`*`)            | Minute when the job is run. ( 0-59, *, */2, etc ) |
-| `schedule_hour`    |           no (`*`)            | Hour when the job is run. ( 0-23, *, */2, etc )  |
+| `schedule_hour`    |           no (`2`)            | Hour when the job is run. ( 0-23, *, */2, etc )  |
 | `schedule_weekday` |           no (`*`)            | Weekday when the job is run.  ( 0-6 for Sunday-Saturday, *, etc ) |
 | `schedule_month`   |           no (`*`)            | Month when the job is run. ( 1-12, *, */2, etc )  |
 | `exclude`          |           no (`{}`)           | Allows you to specify files to exclude. See [Exclude](#exclude) for reference. |
