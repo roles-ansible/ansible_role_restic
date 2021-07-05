@@ -118,16 +118,16 @@ Repository defined in `restic_repos`.
 
 Available variables:
 
-| Name               |      Required (Default)       | Description                                                                                                                                                                  |
-| ------------------ |:-----------------------------:| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`             |              yes              | The name of this backup. Used together with pruning and scheduling and needs to be unique.                                                                                   |
-| `repo`             |              yes              | The name of the repository to backup to.                                                                                                                                     |
-| `src`              |              yes              | The source directory or file                                                                                                                                                 |
-| `stdin`            |              no               | Is this backup created from a [stdin](https://restic.readthedocs.io/en/stable/040_backup.html#reading-data-from-stdin)?                                                      |
-| `stdin_cmd`        | no (yes if `stdin` == `true`) | The command to produce the stdin.                                                                                                                                            |
-| `stdin_filename`   |              no               | The filename used in the repository.                                                                                                                                         |
-| `tags`             |              no               | Array of default tags                                                                                                                                                        |
-| `keep_last`        |              no               | If set, only keeps the last n snapshots.                                                                                                                                     |
+| Name               |      Required (Default)       | Description  |
+| ------------------ |:-----------------------------:| ------------ |
+| `name`             |              yes              | The name of this backup. Used together with pruning and scheduling and needs to be unique. |
+| `repo`             |              yes              | The name of the repository to backup to. |
+| `src`              |              yes              | The source directory or file |
+| `stdin`            |              no               | Is this backup created from a [stdin](https://restic.readthedocs.io/en/stable/040_backup.html#reading-data-from-stdin)? |
+| `stdin_cmd`        | no (yes if `stdin` == `true`) | The command to produce the stdin. |
+| `stdin_filename`   |              no               | The filename used in the repository. |
+| `tags`             |              no               | Array of default tags  |
+| `keep_last`        |              no               | If set, only keeps the last n snapshots.  |
 | `keep_hourly`      |              no               | If set, only keeps the last n hourly snapshots.                                                                                                                              |
 | `keep_daily`       |              no               | If set, only keeps the last n daily snapshots.                                                                                                                               |
 | `keep_weekly `     |              no               | If set, only keeps the last n weekly snapshots.                                                                                                                              |
@@ -136,13 +136,16 @@ Available variables:
 | `keep_within`      |              no               | If set, only keeps snapshots in this time period.                                                                                                                            |
 | `keep_tag`         |              no               | If set, keep snapshots with this tags. Make sure to specify a list.                                                                                                          |
 | `prune`            |         no (`false`)          | If `true`, the `restic forget` command in the script has the [`--prune` option](https://restic.readthedocs.io/en/stable/060_forget.html#removing-backup-snapshots) appended. |
-| `scheduled`        |         no (`false`)          | If `restic_create_cron` is set to `true`, this backup is scheduled and tries to create a systemd timer unit. If it fails, it is creating a cronjob.                          |
+| `scheduled`        |         no (`false`)          | If `restic_create_cron` is set to `true`, this backup is scheduled and tries to create a systemd timer unit. If it fails, it is creating a cronjob. |
 | `schedule_oncalendar` |  ``'*-*-* 02:00:00'``      | The time for the systemd timer. Please notice the randomDelaySec option. By Default the backup is done every night at 2 am (+0-4h). But only if scheduled is true.  |
-| `schedule_minute`  |           no (`*`)            | Minute when the job is run. ( 0-59, *, */2, etc )                                                                                                                            |
-| `schedule_hour`    |           no (`*`)            | Hour when the job is run. ( 0-23, *, */2, etc )                                                                                                                              |
-| `schedule_weekday` |           no (`*`)            | Weekday when the job is run.  ( 0-6 for Sunday-Saturday, *, etc )                                                                                                            |
-| `schedule_month`   |           no (`*`)            | Month when the job is run. ( 1-12, *, */2, etc )                                                                                                                             |
-| `exclude`          |           no (`{}`)           | Allows you to specify files to exclude. See [Exclude](#exclude) for reference.                                                                                               |
+| `schedule_minute`  |           no (`*`)            | Minute when the job is run. ( 0-59, *, */2, etc ) |
+| `schedule_hour`    |           no (`*`)            | Hour when the job is run. ( 0-23, *, */2, etc )  |
+| `schedule_weekday` |           no (`*`)            | Weekday when the job is run.  ( 0-6 for Sunday-Saturday, *, etc ) |
+| `schedule_month`   |           no (`*`)            | Month when the job is run. ( 1-12, *, */2, etc )  |
+| `exclude`          |           no (`{}`)           | Allows you to specify files to exclude. See [Exclude](#exclude) for reference. |
+| `disable_logging`  |           no                  | Optionally disable logging  |
+| `mail_on_error`    |           no                  | Optionally send a mail if the backupjob will fail *(mailx is required)* |
+| `mail_address`     |  if `mail_on_error` is true   | The mail addressto recive mails if you enabled ``mail_on_error``. |
 
 Example:
 ```yaml
