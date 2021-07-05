@@ -32,6 +32,8 @@ export B2_ACCOUNT_KEY={{ restic_repos[item.repo].b2_account_key }}
 {% if item.src is defined %}
 BACKUP_SOURCE={{ item.src }}
 {% endif %}
+
+
 set -uxo pipefail
 {#
   Define Tags
@@ -131,6 +133,8 @@ else
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') ERROR" >> {{ backup_result_log }}
 fi
 
+
+
 {#
   Define stdin forget commands
 #}
@@ -140,4 +144,11 @@ then
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') OK" >> {{ forget_result_log }}
 else
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') ERROR" >> {{ forget_result_log }}
+    {% if item.mail_on_error is defined and item.mail_on_error == true %}
+    mail -s "restic backup failed on {{ ansible_hostname }}" {{ item.mail_address }}  <<< "Something went wrong while running restic backup script running at {{ ansible_hostname }} at $(date -u '+%Y-%m-%d %H:%M:%S').
+      {%- if item.src is defined -%}
+        {{ ' ' }}We tried to backup '{{ item.src }}'.
+      {%- endif -%}
+      {{ ' ' }}Please repair the restic-{{ item.name | replace(' ', '') }} job."
+    {% endif %}
 fi
