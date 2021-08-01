@@ -1,4 +1,5 @@
-# Ansible Role: restic
+ Ansible Role: restic
+=======================
 
 > **Beta:** This role is in beta status.
 
@@ -6,7 +7,8 @@
 [![license](https://raw.githubusercontent.com/roles-ansible/ansible_role_restic/main/.github/license.svg)](https://github.com/roles-ansible/ansible_role_restic/blob/main/LICENSE)
 [![Ansible Galaxy](https://raw.githubusercontent.com/roles-ansible/ansible_role_restic/main/.github/galaxy.svg)](https://galaxy.ansible.com/do1jlr/restic)
 
-## Description
+ Description
+-------------
 [Restic](https://github.com/restic/restic) is a versatile Go based backup
 solution which supports multiple backends, deduplication and incremental
 backups.
@@ -17,15 +19,15 @@ Aditionally, it will setup executable scripts to run a Backup manually.
 
 > This Project borrowed heavily from the
 > [donat-b/ansible-restic](https://github.com/donat-b/ansible-restic) and
-> tje [https://github.com/arillso/ansible.restic](https://github.com/arillso/ansible.restic)
-> ansible role. We try to make this role more modern by using systemd timer,
+> the [https://github.com/arillso/ansible.restic](https://github.com/arillso/ansible.restic)
+> ansible role. We try to make this role more easy to anderstand and modern by using systemd timer,
 > /etc/crontab to define backup paths, more absolute paths and less options. (no S3 Storage, No Windows...)
 
 ### Backup Scripts
 This role will create a backup script and a file with credentials usable with the `source` command on linux for each backup in the `restic_script_dir`.
 These executable scripts can be used to manually trigger a backup action, but
-are also used for automated backups if you have set `restic_create_cron` to true.
-make sure to not change the files manually, as this can interfere with your
+are also used for automated backups if you have set `restic_create_schedule` variable to true.
+Make sure to not change the files manually, as this can interfere with your
 backups quite a bit.
 
 on Linux, if you want to take a manual snapshot, you can run the backup like this:
@@ -69,9 +71,10 @@ ansible-galaxy install arillso.restic
 | `restic_install_path`  | `'/usr/local/bin'`                  | Install location for the restic binary                                      |
 | `restic_script_dir`    | `'/opt/restic'`                        | Location of the generated backup scripts                                    |
 | `restic_log_dir`       | `'{{ restic_script_dir }}/log'`     | Location of the logs of the backup scripts                                  |
-| `restic_repos`         | `{}`                                | A dictionary of repositories where snapshots are stored                     |
-| `restic_backups`       | `{}` (or `[]`)                      | A list of dictionaries specifying the files and directories to be backed up |
-| `restic_create_cron`   | `false`                             | Should a cronjob be created for each backup                                 |
+| `restic_repos`         | `{}`                                | A dictionary of repositories where snapshots are stored. *(More Info: [Repos](#Repos))* |
+| `restic_backups`       | `{}` (or `[]`)                      | A list of dictionaries specifying the files and directories to be backed up *(More Infos: [Backups](#Backups))* |
+|`restic_create_schedule`| `false`                             | Should we schedule each backup. Either via cronjob or via systemd timer.|
+| `restic_schedule_type` | `systemd`                           | Here you can define if we create a ``cronjob`` or a ``systemd`` timer. If it fails to create a systemd timer, a cronjob will be created. |
 | `restic_dir_owner`     | `'{{ansible_user}}'`                | The owner of all created dirs                                               |
 | `restic_dir_group`     | `'{{ansible_user}}'`                | The group of all created dirs                                               |
 
@@ -93,11 +96,6 @@ Available variables:
 | `location`              |   yes    | The location of the Backend. Currently, [Local](https://restic.readthedocs.io/en/stable/030_preparing_a_new_repo.html#local), [SFTP](https://restic.readthedocs.io/en/stable/030_preparing_a_new_repo.html#sftp), [S3](https://restic.readthedocs.io/en/stable/030_preparing_a_new_repo.html#amazon-s3) and [B2](https://restic.readthedocs.io/en/stable/030_preparing_a_new_repo.html#backblaze-b2) are supported |
 | `password`              |   yes    | The password used to secure this repository                                                                                                                                                                                                                                                                             |
 | `init`                  |    no    | Describes if the repository should be initialized or not. Use `false` if you are backuping to an already existing repo.                                                                                                                                                                                                 |
-| `aws_access_key`        |    no    | The access key for the S3 backend                                                                                                                                                                                                                                                                                       |
-| `aws_secret_access_key` |    no    | The secret access key for the S3 backend                                                                                                                                                                                                                                                                                                                        |
-| `aws_default_region` |    no    | The desired region for the S3 backend                                                                                                                                                                                                                                                                                                                        |
-| `b2_account_id` |    no    | The account ID for Backblaze B2 backend                                                                                                                                                                                                                                                                                                                        |
-| `b2_account_key` |    no    | The account key for Backblaze B2 backend                                                                                                                                                                                                                                                                                                                        |
 
 Example:
 ```yaml
@@ -136,7 +134,7 @@ Available variables:
 | `keep_within`      |              no               | If set, only keeps snapshots in this time period.                                                                                                                            |
 | `keep_tag`         |              no               | If set, keep snapshots with this tags. Make sure to specify a list.                                                                                                          |
 | `prune`            |         no (`false`)          | If `true`, the `restic forget` command in the script has the [`--prune` option](https://restic.readthedocs.io/en/stable/060_forget.html#removing-backup-snapshots) appended. |
-| `scheduled`        |         no (`false`)          | If `restic_create_cron` is set to `true`, this backup is scheduled and tries to create a systemd timer unit. If it fails, it is creating a cronjob. |
+| `scheduled`        |         no (`false`)          | If `restic_create_schedule` is set to `true`, this backup is scheduled and tries to create a systemd timer unit. If it fails, it is creating a cronjob. |
 | `schedule_oncalendar` |  ``'*-*-* 02:00:00'``      | The time for the systemd timer. Please notice the randomDelaySec option. By Default the backup is done every night at 2 am (+0-4h). But only if scheduled is true.  |
 | `schedule_minute`  |           no (`*`)            | Minute when the job is run. ( 0-59, *, */2, etc ) |
 | `schedule_hour`    |           no (`2`)            | Hour when the job is run. ( 0-23, *, */2, etc )  |

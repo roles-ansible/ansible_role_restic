@@ -8,7 +8,9 @@ restic_script_dir: '/opt/restic'
 restic_log_dir: '{{ restic_script_dir }}/log'
 restic_repos: {}
 restic_backups: []
-restic_create_cron: false
+restic_create_schedule: "{{ restic_create_cron }}"
+restic_schedule_type: "systemd"
+# restic_schedule_type: "cronjob"
 
 restic_dir_owner: '{{ ansible_user | default(ansible_user_id) }}'
 restic_dir_group: '{{ ansible_user | default(ansible_user_id) }}'
@@ -19,3 +21,6 @@ restic_systemd_timer_default_OnCalendar: '*-*-* 02:00:00'
 
 # perform simple version check for this role? (true is recomended)
 submodules_versioncheck: false
+
+# outdated variables because of irritating names, but kept for compatibility
+restic_create_cron: false

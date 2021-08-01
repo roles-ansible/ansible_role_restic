@@ -2,7 +2,7 @@
 - name: Converge
   hosts: all
   roles:
-    - role: ansible_role_restic
+    - {role: ansible_role_restic}
   pre_tasks:
     - name: install bzip2
       package:
