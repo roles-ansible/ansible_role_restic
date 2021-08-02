@@ -5,6 +5,7 @@
     name: "restic-{{ item.name | replace(' ', '') | string }}.timer"
     state: 'restarted'
     daemon_reload: true
+    masked: false
   with_items: '{{ restic_backups }}'
   when:
     - restic_create_schedule

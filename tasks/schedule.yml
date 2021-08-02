@@ -50,6 +50,7 @@
         name: "restic-{{ item.name | replace(' ', '') | string }}.service"
         enabled: true
         daemon_reload: true
+        masked: false
       with_items: '{{ restic_backups }}'
       notify: systemctl restart restic.timer
       when:
@@ -63,6 +64,7 @@
         enabled: true
         state: started
         daemon_reload: true
+        masked: false
       with_items: '{{ restic_backups }}'
       notify: systemctl restart restic.timer
       when:
@@ -110,20 +112,33 @@
   no_log: true
   with_items: '{{ restic_backups }}'
   when:
-    - restic_create_schedule
+    - restic_create_schedule | bool
     - item.name is defined
     - item.scheduled | default(false)
-    - ansible_service_mgr != 'systemd' or restic_force_cron | default(false)
-    - restic_schedule_type == "cronjob" or restic_force_cron | default(false)
+    - ansible_service_mgr != 'systemd' or restic_force_cron | default(false) or restic_schedule_type == "cronjob"
 
 - name: make sure no unwanted systemd timer is available
   ansible.builtin.systemd:
     name: "restic-{{ item.name | replace(' ', '') | string }}.timer"
-    state: stopped
+    state: 'stopped'
     enabled: false
+    masked: true
+  with_items: '{{ restic_backups }}'
   when:
-    - restic_create_schedule
+    - restic_create_schedule | bool
     - item.name is defined
     - item.scheduled | default(false)
-    - ansible_service_mgr != 'systemd' or restic_force_cron | default(false)
-    - restic_schedule_type == "cronjob" or restic_force_cron | default(false)
+    - ansible_service_mgr != 'systemd' or restic_force_cron | default(false) or restic_schedule_type == "cronjob"
+
+- name: mask systemd service
+  ansible.builtin.systemd:
+    name: "restic-{{ item.name | replace(' ', '') | string }}.service"
+    state: 'stopped'
+    enabled: false
+    masked: true
+  with_items: '{{ restic_backups }}'
+  when:
+    - restic_create_schedule | bool
+    - item.name is defined
+    - item.scheduled | default(false)
+    - ansible_service_mgr != 'systemd' or restic_force_cron | default(false) or restic_schedule_type == "cronjob"
