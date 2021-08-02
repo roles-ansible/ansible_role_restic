@@ -5,9 +5,10 @@
     name: "restic-{{ item.name | replace(' ', '') | string }}.timer"
     state: 'restarted'
     daemon_reload: true
+    masked: false
   with_items: '{{ restic_backups }}'
   when:
-    - restic_create_cron
+    - restic_create_schedule
     - item.name is defined
     - item.scheduled | default(false)
     - ansible_service_mgr == 'systemd'

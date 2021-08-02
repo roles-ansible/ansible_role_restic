@@ -13,7 +13,6 @@
       with_items: '{{ restic_backups }}'
       notify: systemctl restart restic.timer
       when:
-        - restic_create_cron
         - item.name is defined
         - item.scheduled | default(false)
 
@@ -28,7 +27,6 @@
       no_log: true
       with_items: '{{ restic_backups }}'
       when:
-        - restic_create_cron
         - item.name is defined
         - item.scheduled | default(false)
 
@@ -43,7 +41,6 @@
       no_log: true
       with_items: '{{ restic_backups }}'
       when:
-        - restic_create_cron
         - item.name is defined
         - item.scheduled | default(false)
 
@@ -53,10 +50,10 @@
         name: "restic-{{ item.name | replace(' ', '') | string }}.service"
         enabled: true
         daemon_reload: true
+        masked: false
       with_items: '{{ restic_backups }}'
       notify: systemctl restart restic.timer
       when:
-        - restic_create_cron
         - item.name is defined
         - item.scheduled | default(false)
 
@@ -67,10 +64,10 @@
         enabled: true
         state: started
         daemon_reload: true
+        masked: false
       with_items: '{{ restic_backups }}'
       notify: systemctl restart restic.timer
       when:
-        - restic_create_cron
         - item.name is defined
         - item.scheduled | default(false)
 
@@ -89,15 +86,16 @@
       no_log: true
       with_items: '{{ restic_backups }}'
       when:
-        - restic_create_cron
         - item.name is defined
         - item.scheduled | default(false)
-  when: ansible_service_mgr == 'systemd'
+  when:
+    - ansible_service_mgr == 'systemd'
+    - restic_schedule_type == "systemd"
+    - restic_create_schedule | bool
   rescue:
     - name: set cronjob intead of systemd
       set_fact:
         restic_force_cron: true
-
 
 - name: install cronjob instead of systemd
   ansible.builtin.cron:
@@ -114,7 +112,33 @@
   no_log: true
   with_items: '{{ restic_backups }}'
   when:
-    - restic_create_cron
+    - restic_create_schedule | bool
     - item.name is defined
     - item.scheduled | default(false)
-    - ansible_service_mgr != 'systemd' or restic_force_cron | default(false)
+    - ansible_service_mgr != 'systemd' or restic_force_cron | default(false) or restic_schedule_type == "cronjob"
+
+- name: make sure no unwanted systemd timer is available
+  ansible.builtin.systemd:
+    name: "restic-{{ item.name | replace(' ', '') | string }}.timer"
+    state: 'stopped'
+    enabled: false
+    masked: true
+  with_items: '{{ restic_backups }}'
+  when:
+    - restic_create_schedule | bool
+    - item.name is defined
+    - item.scheduled | default(false)
+    - ansible_service_mgr != 'systemd' or restic_force_cron | default(false) or restic_schedule_type == "cronjob"
+
+- name: mask systemd service
+  ansible.builtin.systemd:
+    name: "restic-{{ item.name | replace(' ', '') | string }}.service"
+    state: 'stopped'
+    enabled: false
+    masked: true
+  with_items: '{{ restic_backups }}'
+  when:
+    - restic_create_schedule | bool
+    - item.name is defined
+    - item.scheduled | default(false)
+    - ansible_service_mgr != 'systemd' or restic_force_cron | default(false) or restic_schedule_type == "cronjob"
