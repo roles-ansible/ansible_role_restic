@@ -12,7 +12,7 @@
     mode: '0700'
     owner: '{{ restic_dir_owner }}'
     group: '{{ restic_dir_group }}'
-  no_log: true
+  no_log: "{{ restic_no_log }}"
   with_items: '{{ restic_backups }}'
   when:
     - item.name is defined
@@ -27,7 +27,7 @@
     mode: '0700'
     owner: '{{ restic_dir_owner }}'
     group: '{{ restic_dir_group }}'
-  no_log: true
+  no_log: "{{ restic_no_log }}"
   with_items: '{{ restic_backups }}'
   when:
     - item.name is defined

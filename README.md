@@ -66,7 +66,7 @@ ansible-galaxy install arillso.restic
 | Name                   | Default                             | Description                                                                 |
 | ---------------------- | ----------------------------------- | --------------------------------------------------------------------------- |
 | `restic_url`           | `undefined`                         | The URL to download restic from. Use this variable to overwrite the default |
-| `restic_version`       | `'0.12.0'`                          | The version of Restic to install                                            |
+| `restic_version`       | `'0.12.1'`                          | The version of Restic to install                                            |
 | `restic_download_path` | `'/opt/restic'`                     | Download location for the restic binary                                     |
 | `restic_install_path`  | `'/usr/local/bin'`                  | Install location for the restic binary                                      |
 | `restic_script_dir`    | `'/opt/restic'`                        | Location of the generated backup scripts                                    |
@@ -77,6 +77,7 @@ ansible-galaxy install arillso.restic
 | `restic_schedule_type` | `systemd`                           | Here you can define if we create a ``cronjob`` or a ``systemd`` timer. If it fails to create a systemd timer, a cronjob will be created. |
 | `restic_dir_owner`     | `'{{ansible_user}}'`                | The owner of all created dirs                                               |
 | `restic_dir_group`     | `'{{ansible_user}}'`                | The group of all created dirs                                               |
+| `restic_no_log`        | `true`                              | set to false to see hidden ansible logs                                     |
 
 ### Repos
 Restic stores data in repositories. You have to specify at least one repository

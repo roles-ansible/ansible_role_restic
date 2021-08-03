@@ -1,47 +1,51 @@
 ---
-- name: Download client binary
-  get_url:
-    url: '{{ restic_url }}'
-    dest: '{{ restic_download_path }}/restic.bz2'
-    force: true
-  register: get_url_restic
+- name: install and verify restic binary
+  block:
+    - name: Download client binary
+      ansible.builtin.get_url:
+        url: '{{ restic_url }}'
+        dest: '{{ restic_download_path }}/restic.bz2'
+        force: true
+      register: get_url_restic
 
-# TODO: This needs to become independent of the shell module to actually work
-# on every system. We could use a distribution specific aproach, but this would
-# conflict with the current structure in tasks/distribution/
-- name: Decompress the binary
-  shell: "bzip2 -dc {{ get_url_restic.dest }} > {{ restic_bin_bath }}"
-  args:
-    creates: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
+    # TODO: This needs to become independent of the shell module to actually work
+    - name: Decompress the binary
+      ansible.builtin.shell: "bzip2 -dc {{ get_url_restic.dest }} > {{ restic_bin_bath }}"
+      args:
+        creates: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
 
-- name: Ensure permissions are correct
-  file:
-    path: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
-    mode: '0755'
-    owner: '{{ restic_dir_owner }}'
-    group: '{{ restic_dir_group }}'
+    - name: Ensure permissions are correct
+      ansible.builtin.file:
+        path: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
+        mode: '0755'
+        owner: '{{ restic_dir_owner }}'
+        group: '{{ restic_dir_group }}'
 
-- name: Test the binary
-  ansible.builtin.command: "{{ restic_bin_bath }} version"
-  ignore_errors: true
-  register: restic_test_result
+    - name: Test the binary
+      ansible.builtin.command: "{{ restic_bin_bath }} version"
+      ignore_errors: true
+      register: restic_test_result
 
-- name: Remove faulty binary
-  file:
-    path: '{{ restic_bin_bath }}'
-    state: absent
-  when: "'FAILED' in restic_test_result.stderr"
+    - name: Remove faulty binary
+      ansible.builtin.file:
+        path: '{{ restic_bin_bath }}'
+        state: absent
+      when: "'FAILED' in restic_test_result.stderr"
 
-- name: Fail if restic could not be installed
-  fail:
-    msg: >-
-      Restic binary has been faulty and has been removed.
-      Try to re-run the role and make sure you have bzip2 installed!
-  when: "'FAILED' in restic_test_result.stderr"
+    - name: Fail if restic could not be installed
+      ansible.builtin.fail:
+        msg: >-
+          Restic binary has been faulty and has been removed.
+          Try to re-run the role and make sure you have bzip2 installed!
+      when: "'FAILED' in restic_test_result.stderr"
 
-- name: Create symbolic link to the correct version
-  file:
-    src: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
-    path: '{{ restic_install_path }}/restic'
-    state: link
-    force: true
+    - name: Create symbolic link to the correct version
+      ansible.builtin.file:
+        src: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
+        path: '{{ restic_install_path }}/restic'
+        state: link
+        force: true
+  rescue:
+    - name: try restic self-update
+      become: true
+      ansible.builtin.command: "{{ restic_install_path }}/restic self-update"

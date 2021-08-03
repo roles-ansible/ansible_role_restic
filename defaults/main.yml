@@ -1,7 +1,7 @@
 ---
 # defaults file for skeleton
 restic_url: '{{ restic_url_default }}'
-restic_version: '0.12.0'
+restic_version: '0.12.1'
 restic_download_path: '/opt/restic'
 restic_install_path: '/usr/bin'
 restic_script_dir: '/opt/restic'
@@ -11,6 +11,7 @@ restic_backups: []
 restic_create_schedule: "{{ restic_create_cron }}"
 restic_schedule_type: "systemd"
 # restic_schedule_type: "cronjob"
+restic_no_log: true
 
 restic_dir_owner: '{{ ansible_user | default(ansible_user_id) }}'
 restic_dir_group: '{{ ansible_user | default(ansible_user_id) }}'

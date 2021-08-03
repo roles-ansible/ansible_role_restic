@@ -9,7 +9,7 @@
         owner: 'root'
         group: 'root'
         mode: '0644'
-      no_log: true
+      no_log: "{{ restic_no_log }}"
       with_items: '{{ restic_backups }}'
       notify: systemctl restart restic.timer
       when:
@@ -24,7 +24,7 @@
         owner: 'root'
         group: 'root'
         mode: '0644'
-      no_log: true
+      no_log: "{{ restic_no_log }}"
       with_items: '{{ restic_backups }}'
       when:
         - item.name is defined
@@ -38,7 +38,7 @@
         owner: 'root'
         group: 'root'
         mode: '0644'
-      no_log: true
+      no_log: "{{ restic_no_log }}"
       with_items: '{{ restic_backups }}'
       when:
         - item.name is defined
@@ -83,7 +83,7 @@
         cron_file: '/etc/crontab'
         user: 'root'
       become: true
-      no_log: true
+      no_log: "{{ restic_no_log }}"
       with_items: '{{ restic_backups }}'
       when:
         - item.name is defined
@@ -109,7 +109,7 @@
     cron_file: '/etc/crontab'
     user: 'root'
   become: true
-  no_log: true
+  no_log: "{{ restic_no_log }}"
   with_items: '{{ restic_backups }}'
   when:
     - restic_create_schedule | bool
@@ -124,6 +124,7 @@
     enabled: false
     masked: true
   with_items: '{{ restic_backups }}'
+  ignore_errors: true
   when:
     - restic_create_schedule | bool
     - item.name is defined
@@ -137,6 +138,7 @@
     enabled: false
     masked: true
   with_items: '{{ restic_backups }}'
+  ignore_errors: true
   when:
     - restic_create_schedule | bool
     - item.name is defined
