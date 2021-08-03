@@ -11,6 +11,7 @@ restic_backups: []
 restic_create_schedule: "{{ restic_create_cron }}"
 restic_schedule_type: "systemd"
 # restic_schedule_type: "cronjob"
+restic_no_log: true
 
 restic_dir_owner: '{{ ansible_user | default(ansible_user_id) }}'
 restic_dir_group: '{{ ansible_user | default(ansible_user_id) }}'

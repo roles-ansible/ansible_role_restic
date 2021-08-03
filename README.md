@@ -77,6 +77,7 @@ ansible-galaxy install arillso.restic
 | `restic_schedule_type` | `systemd`                           | Here you can define if we create a ``cronjob`` or a ``systemd`` timer. If it fails to create a systemd timer, a cronjob will be created. |
 | `restic_dir_owner`     | `'{{ansible_user}}'`                | The owner of all created dirs                                               |
 | `restic_dir_group`     | `'{{ansible_user}}'`                | The group of all created dirs                                               |
+| `restic_no_log`        | `true`                              | set to false to see hidden ansible logs                                     |
 
 ### Repos
 Restic stores data in repositories. You have to specify at least one repository
