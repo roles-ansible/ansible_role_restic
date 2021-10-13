@@ -1,5 +1,6 @@
 ---
 - name: install and verify restic binary
+  become: true
   block:
     - name: Download client binary
       ansible.builtin.get_url:
