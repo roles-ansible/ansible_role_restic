@@ -143,6 +143,7 @@ Available variables:
 | `schedule_month`   |           no (`*`)            | Month when the job is run. ( 1-12, *, */2, etc )  |
 | `exclude`          |           no (`{}`)           | Allows you to specify files to exclude. See [Exclude](#exclude) for reference. |
 | `disable_logging`  |           no                  | Optionally disable logging  |
+| `log_to_journald`  |           no                  | Optionally switch logging to journald with the name of the backup job as the tag |
 | `mail_on_error`    |           no                  | Optionally send a mail if the backupjob will fail *(mailx is required)* |
 | `mail_address`     |  if `mail_on_error` is true   | The mail addressto recive mails if you enabled ``mail_on_error``. |
 
