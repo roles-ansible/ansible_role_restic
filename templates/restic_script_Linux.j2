@@ -8,8 +8,8 @@
 {% set forget_result_log, forget_output_log = "/dev/null", "/dev/null" %}
 {% else %}
 {% if (item.log_to_journald is defined and item.log_to_journald) %}
-{% set backup_result_log, backup_output_log = "| systemd-cat -t " + item.name, "| systemd-cat -t " + item.name %}
-{% set forget_result_log, forget_output_log = "| systemd-cat -t " + item.name, "| systemd-cat -t " + item.name %}
+{% set backup_result_log, backup_output_log = "| systemd-cat -t " + item.name, "2>&1 | systemd-cat -t " + item.name %}
+{% set forget_result_log, forget_output_log = "| systemd-cat -t " + item.name, "2>&1 | systemd-cat -t " + item.name %}
 {% else %}
 {% set backup_result_log, backup_output_log = ">> " + restic_log_dir + "/" + item.name + "-backup-result.log", "| tee " + restic_log_dir + "/" + item.name + "-backup-output.log" %}
 {% set forget_result_log, forget_output_log = ">> " + restic_log_dir + "/" + item.name + "-forget-result.log", "| tee " + restic_log_dir + "/" + item.name + "-forget-output.log" %}
