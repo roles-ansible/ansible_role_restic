@@ -121,7 +121,7 @@ Available variables:
 | ------------------ |:-----------------------------:| ------------ |
 | `name`             |              yes              | The name of this backup. Used together with pruning and scheduling and needs to be unique. |
 | `repo`             |              yes              | The name of the repository to backup to. |
-| `src`              |              yes              | The source directory or file |
+| `src`              | yes (unless `stdin` == `true`) | The source directory or file |
 | `stdin`            |              no               | Is this backup created from a [stdin](https://restic.readthedocs.io/en/stable/040_backup.html#reading-data-from-stdin)? |
 | `stdin_cmd`        | no (yes if `stdin` == `true`) | The command to produce the stdin. |
 | `stdin_filename`   |              no               | The filename used in the repository. |
@@ -156,6 +156,14 @@ restic_backups:
     src: /path/to/data
     scheduled: true
     schedule_oncalendar: '*-*-* 01:00:00'
+  database:
+    name: database
+    repo: remove
+    stdin: true
+    stdin_cmd: pg_dump -Ubackup db_name
+    stdin_filename: db_name_dump.sql
+    scheduled: true
+    schedule_oncalendar: '*-*-* 01:30:00'
 ```
 
 > You can also specify restic_backups as an array, which is a legacy feature and
