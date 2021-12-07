@@ -4,5 +4,5 @@ Description=Backup {{ item.name }} using restic
 [Service]
 Type=oneshot
 ExecStart={{ restic_script_dir }}/backup-{{ item.name }}.sh
-TimeoutStartSec=900s
+TimeoutStartSec=0
 Environment="CRON=true"
