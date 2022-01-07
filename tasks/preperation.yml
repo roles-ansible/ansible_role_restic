@@ -1,5 +1,6 @@
 ---
 - name: Ensure restic directories exist
+  become: true
   ansible.builtin.file:
     state: 'directory'
     path: '{{ item }}'
