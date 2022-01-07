@@ -1,0 +1,66 @@
+---
+- name: create systemd timer
+  block:
+    - name: copy systemd timer
+      become: true
+      ansible.builtin.template:
+        src: templates/restic.timer.j2
+        dest: "/lib/systemd/system/restic-{{ item.name | replace(' ', '') }}.timer"
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      no_log: "{{ restic_no_log }}"
+      with_items: '{{ restic_backups }}'
+      notify: systemctl restart restic.timer
+      when:
+        - item.name is defined
+        - item.scheduled | default(false)
+
+    - name: copy systemd service
+      become: true
+      ansible.builtin.template:
+        src: templates/restic.service.j2
+        dest: "/lib/systemd/system/restic-{{ item.name | replace(' ', '') }}.service"
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      no_log: "{{ restic_no_log }}"
+      with_items: '{{ restic_backups }}'
+      when:
+        - item.name is defined
+        - item.scheduled | default(false)
+
+    - name: Enable restic service
+      become: true
+      ansible.builtin.systemd:
+        name: "restic-{{ item.name | replace(' ', '') | string }}.service"
+        enabled: true
+        daemon_reload: true
+        masked: false
+      with_items: '{{ restic_backups }}'
+      notify: systemctl restart restic.timer
+      when:
+        - item.name is defined
+        - item.scheduled | default(false)
+
+    - name: Enable and start restic timer
+      become: true
+      ansible.builtin.systemd:
+        name: "restic-{{ item.name | replace(' ', '') | string }}.timer"
+        enabled: true
+        state: started
+        daemon_reload: true
+        masked: false
+      with_items: '{{ restic_backups }}'
+      notify: systemctl restart restic.timer
+      when:
+        - item.name is defined
+        - item.scheduled | default(false)
+  when:
+    - ansible_service_mgr == 'systemd'
+    - restic_schedule_type == "systemd"
+    - restic_create_schedule | bool
+  rescue:
+    - name: set cronjob intead of systemd
+      set_fact:
+        restic_force_cron: true

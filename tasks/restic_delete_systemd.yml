@@ -1,0 +1,58 @@
+---
+- name: remove systemd timer
+  block:
+    - name: mask restic timer
+      become: true
+      ansible.builtin.systemd:
+        name: "restic-{{ item.name | replace(' ', '') | string }}.timer"
+        enabled: false
+        state: stopped
+        daemon_reload: true
+        masked: false
+      with_items: '{{ restic_backups }}'
+      ignore_errors: true
+      failed_when: false
+      changed_when: false
+      when:
+        - item.name is defined
+        - item.scheduled | default(false)
+        - restic_schedule_type == "cronjob" or restic_force_cron | default(false)
+
+    - name: mask restic service
+      become: true
+      ansible.builtin.systemd:
+        name: "restic-{{ item.name | replace(' ', '') | string }}.service"
+        enabled: false
+        state: stopped
+        daemon_reload: true
+        masked: true
+      with_items: '{{ restic_backups }}'
+      when:
+        - item.name is defined
+        - item.scheduled | default(false)
+        - restic_schedule_type == "cronjob" or restic_force_cron | default(false)
+      ignore_errors: true
+      failed_when: false
+      changed_when: false
+
+    - name: delete systemd .timer file
+      become: true
+      ansible.builtin.file:
+        path: "/lib/systemd/system/restic-{{ item.name | replace(' ', '') }}.timer"
+        state: absent
+      with_items: '{{ restic_backups }}'
+      when:
+        - item.name is defined
+        - item.scheduled | default(false)
+        - restic_schedule_type == "cronjob" or restic_force_cron | default(false)
+
+    - name: delete systemd .service file
+      become: true
+      ansible.builtin.file:
+        path: "/lib/systemd/system/restic-{{ item.name | replace(' ', '') }}.service"
+        state: absent
+      with_items: '{{ restic_backups }}'
+      when:
+        - item.name is defined
+        - item.scheduled | default(false)
+        - restic_schedule_type == "cronjob" or restic_force_cron | default(false)
