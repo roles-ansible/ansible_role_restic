@@ -2,18 +2,18 @@
 - name: add OS specific variables
   ansible.builtin.include_vars: "{{ lookup('first_found', restic_os_variables) }}"
 
-- name: perform versionscheck
+- name: perform optional versionscheck
   ansible.builtin.include_tasks: 'versioncheck.yml'
-  when: submodules_versioncheck|bool
+  when: submodules_versioncheck | bool
 
 - name: make sure restic is available
   ansible.builtin.include_tasks: 'preperation.yml'
 
-- name: Install restic
+- name: make sure restic is installed
   ansible.builtin.include_tasks: 'install.yml'
   when: not restic_executable.stat.exists or not restic_installed.stat.exists
 
-- name: Configure restic
+- name: initialize restic repo(s)
   ansible.builtin.include_tasks: 'configure.yml'
 
 - name: create backup script

@@ -1,8 +1,8 @@
 ---
-- name: install and verify restic binary
+- name: (INSTALL) install and verify restic binary
   become: true
   block:
-    - name: Download client binary
+    - name: (INSTALL) Download client binary
       ansible.builtin.get_url:
         url: '{{ restic_url }}'
         dest: '{{ restic_download_path }}/restic.bz2'
@@ -10,43 +10,43 @@
       register: get_url_restic
 
     # TODO: This needs to become independent of the shell module to actually work
-    - name: Decompress the binary
+    - name: (INSTALL) Decompress the binary
       ansible.builtin.shell: "bzip2 -dc {{ get_url_restic.dest }} > {{ restic_bin_bath }}"
       args:
         creates: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
 
-    - name: Ensure permissions are correct
+    - name: (INSTALL) Ensure permissions are correct
       ansible.builtin.file:
         path: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
         mode: '0755'
         owner: '{{ restic_dir_owner }}'
         group: '{{ restic_dir_group }}'
 
-    - name: Test the binary
+    - name: (INSTALL) Test the binary
       ansible.builtin.command: "{{ restic_bin_bath }} version"
       ignore_errors: true
       register: restic_test_result
 
-    - name: Remove faulty binary
+    - name: (INSTALL) Remove faulty binary
       ansible.builtin.file:
         path: '{{ restic_bin_bath }}'
         state: absent
       when: "'FAILED' in restic_test_result.stderr"
 
-    - name: Fail if restic could not be installed
+    - name: (INSTALL) Fail if restic could not be installed
       ansible.builtin.fail:
         msg: >-
           Restic binary has been faulty and has been removed.
           Try to re-run the role and make sure you have bzip2 installed!
       when: "'FAILED' in restic_test_result.stderr"
 
-    - name: Create symbolic link to the correct version
+    - name: (INSTALL) Create symbolic link to the correct version
       ansible.builtin.file:
         src: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
         path: '{{ restic_install_path }}/restic'
         state: link
         force: true
   rescue:
-    - name: try restic self-update
+    - name: (INSTALL) try restic self-update
       become: true
       ansible.builtin.command: "{{ restic_install_path }}/restic self-update"

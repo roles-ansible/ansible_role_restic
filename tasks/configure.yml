@@ -1,5 +1,5 @@
 ---
-- name: Initialize repository
+- name: (CONF)Initialize repository
   command: '{{ restic_install_path }}/restic init'
   environment:
     RESTIC_REPOSITORY: '{{ item.value.location }}'

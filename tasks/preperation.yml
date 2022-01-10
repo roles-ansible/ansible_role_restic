@@ -1,5 +1,6 @@
 ---
-- name: Ensure restic directories exist
+- name: (PREPARE) Ensure restic directories exist
+  become: true
   ansible.builtin.file:
     state: 'directory'
     path: '{{ item }}'
@@ -8,12 +9,12 @@
     group: '{{ restic_dir_group }}'
   with_items: '{{ restic_create_paths }}'
 
-- name: Check if downloaded binary is present
+- name: (PREPARE) Check if downloaded binary is present
   ansible.builtin.stat:
     path: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
   register: restic_executable
 
-- name: Check if installed binary is present
+- name: (PREPARE) Check if installed binary is present
   ansible.builtin.stat:
     path: '{{ restic_install_path }}/restic'
   register: restic_installed
