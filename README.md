@@ -78,6 +78,7 @@ ansible-galaxy install arillso.restic
 | `restic_dir_owner`     | `'{{ansible_user}}'`                | The owner of all created dirs                                               |
 | `restic_dir_group`     | `'{{ansible_user}}'`                | The group of all created dirs                                               |
 | `restic_no_log`        | `true`                              | set to false to see hidden ansible logs                                     |
+| `restic_do_not_cleanup_cron ` | `false`                      | we changed the cron location and clean up the old one. You can skip the cleanup here |
 
 ### Repos
 Restic stores data in repositories. You have to specify at least one repository
