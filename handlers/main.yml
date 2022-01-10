@@ -8,6 +8,7 @@
     masked: false
   with_items: '{{ restic_backups }}'
   ignore_errors: true
+  tags: skip_ansible_lint
   when:
     - restic_create_schedule
     - item.name is defined

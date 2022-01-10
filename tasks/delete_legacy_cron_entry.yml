@@ -27,6 +27,7 @@
     - item.scheduled | default(false)
     - ansible_service_mgr != 'systemd' or restic_force_cron | default(false) or restic_schedule_type == "cronjob"
   ignore_error: true
+  tags: skip_ansible_lint
   register: cron_delete
 
 - name: "(SCHEDULE) (OLD) make sure 'do1jlr.restic backup {{ item.name }}' is not in /etc/crontab"

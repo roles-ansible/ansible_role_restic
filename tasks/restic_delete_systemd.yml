@@ -11,6 +11,7 @@
         masked: false
       with_items: '{{ restic_backups }}'
       ignore_errors: true
+      tags: skip_ansible_lint
       failed_when: false
       changed_when: false
       when:
@@ -33,6 +34,7 @@
         - restic_schedule_type == "cronjob" or restic_force_cron | default(false)
       ignore_errors: true
       failed_when: false
+      tags: skip_ansible_lint
       changed_when: false
 
     - name: (SCHEDULE) (SYSTEMD) delete systemd .timer file
