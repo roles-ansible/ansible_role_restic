@@ -3,6 +3,27 @@
 # Backup script for {{ item.src|default('stdin') }}
 # Use this file to create a Backup and prune existing data with one execution.
 
+pid="/var/run/restic_backup_{{  item.name | regex_replace('\'', '\'\\\'\'') }}.pid"
+trap "rm -f $pid" SIGSEGV
+trap "rm -f $pid" SIGINT
+
+if [ -e $pid ]; then
+   {% if item.mail_on_error is defined and item.mail_on_error == true %}
+    mail -s "starting restic backup failed on {{ ansible_hostname }}" {{ item.mail_address }}  <<< "Another restic backup process is already running. We canceled starting a new restic backup script running at {{ ansible_hostname }} at $(date -u '+%Y-%m-%d %H:%M:%S').
+      {%- if item.src is defined -%}
+        {{ ' ' }}We tried to backup '{{ item.src }}'.
+      {%- endif -%}
+      {{ ' ' }}Please repair the restic-{{ item.name | replace(' ', '') }} job."
+    {% endif %}
+   exit # pid file exists, another instance is running, so now we politely exit
+else
+    echo $$ > $pid # pid file doesn't exit, create one and go on
+fi
+# your normal workflow here...
+
+
+
+
 {% if item.disable_logging is defined and item.disable_logging %}
 {% set backup_result_log, backup_output_log = "/dev/null", "/dev/null" %}
 {% set forget_result_log, forget_output_log = "/dev/null", "/dev/null" %}
@@ -164,3 +185,5 @@ else
       {{ ' ' }}Please repair the restic-{{ item.name | replace(' ', '') }} job."
     {% endif %}
 fi
+rm -f $pid # remove pid file just before exiting
+exit
