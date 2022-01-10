@@ -1,0 +1,18 @@
+---
+- name: remove restic backup cronjob
+  ansible.builtin.cron:
+    name: "do1jlr.restic backup {{ item.name }}"
+    job: "CRON=true {{ restic_script_dir }}/backup-{{ item.name | replace(' ', '') }}.sh"
+    minute: '{{ item.schedule_minute | default("*") }}'
+    hour: '{{ item.schedule_hour | default("2") }}'
+    weekday: '{{ item.schedule_weekday | default("*") }}'
+    month: '{{ item.schedule_month | default("*") }}'
+    state: present
+    user: 'root'
+    cron_file: restic_backup
+  become: true
+  no_log: "{{ restic_no_log }}"
+  with_items: '{{ restic_backups }}'
+  when:
+    - item.name is defined
+    - item.scheduled | default(false)

@@ -22,3 +22,11 @@
   when:
     - restic_create_schedule | bool
     - ansible_service_mgr != 'systemd' or restic_force_cron | default(false) or restic_schedule_type == "cronjob"
+
+- name: remove restic cronjobs
+  ansible.builtin.include_tasks: restic_delete_cron.yml
+  when:
+    - restic_create_schedule | bool
+    - ansible_service_mgr == 'systemd'
+    - not restic_force_cron | default(false)
+    - restic_schedule_type != "cronjob"
