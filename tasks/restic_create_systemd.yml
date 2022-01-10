@@ -1,7 +1,7 @@
 ---
-- name: create systemd timer
+- name: (SCHEDULE) (SYSTEMD) create systemd timer
   block:
-    - name: copy systemd timer
+    - name: (SCHEDULE) (SYSTEMD) copy systemd timer
       become: true
       ansible.builtin.template:
         src: templates/restic.timer.j2
@@ -16,7 +16,7 @@
         - item.name is defined
         - item.scheduled | default(false)
 
-    - name: copy systemd service
+    - name: (SCHEDULE) (SYSTEMD) copy systemd service
       become: true
       ansible.builtin.template:
         src: templates/restic.service.j2
@@ -30,7 +30,7 @@
         - item.name is defined
         - item.scheduled | default(false)
 
-    - name: Enable restic service
+    - name: (SCHEDULE) (SYSTEMD) Enable restic service
       become: true
       ansible.builtin.systemd:
         name: "restic-{{ item.name | replace(' ', '') | string }}.service"
@@ -43,7 +43,7 @@
         - item.name is defined
         - item.scheduled | default(false)
 
-    - name: Enable and start restic timer
+    - name: (SCHEDULE) (SYSTEMD) Enable and start restic timer
       become: true
       ansible.builtin.systemd:
         name: "restic-{{ item.name | replace(' ', '') | string }}.timer"

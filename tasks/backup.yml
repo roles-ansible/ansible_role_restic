@@ -1,11 +1,11 @@
 ---
-- name: reformat dict if necessary
+- name: (BACKUP) reformat dict if necessary
   set_fact:
     restic_backups: "{{ restic_backups|dict2items|json_query('[*].value') }}"
   when:
     - restic_backups | type_debug == "dict"
 
-- name: Create backup credentials
+- name: (BACKUP) Create backup credentials
   template:
     src: restic_access_Linux.j2
     dest: "{{ restic_script_dir }}/access-{{ item.name | replace(' ', '') }}.sh"
@@ -20,7 +20,7 @@
     - item.src is defined or item.stdin and item.stdin_cmd is defined
     - item.repo in restic_repos
 
-- name: Create backup script
+- name: (BACKUP) Create backup script
   template:
     src: restic_script_Linux.j2
     dest: "{{ restic_script_dir }}/backup-{{ item.name | replace(' ', '') }}.sh"

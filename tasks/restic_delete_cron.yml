@@ -1,5 +1,5 @@
 ---
-- name: remove restic backup cronjob
+- name: (SCHEDULE) (CRON) remove restic backup cronjob
   ansible.builtin.cron:
     name: "do1jlr.restic backup {{ item.name }}"
     job: "CRON=true {{ restic_script_dir }}/backup-{{ item.name | replace(' ', '') }}.sh"

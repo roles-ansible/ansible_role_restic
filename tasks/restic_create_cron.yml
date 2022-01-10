@@ -1,5 +1,5 @@
 ---
-- name: install restic backup cronjob
+- name: (SCHEDULE) (CRON) install restic backup cronjob
   ansible.builtin.cron:
     name: "do1jlr.restic backup {{ item.name }}"
     job: "CRON=true {{ restic_script_dir }}/backup-{{ item.name | replace(' ', '') }}.sh"

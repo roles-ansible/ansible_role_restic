@@ -1,5 +1,5 @@
 ---
-- name: "check if ansible version is under 2.12.0"
+- name: "(SCHEDULE) (OLD) check if ansible version is under 2.12.0"
   ansible.builtin.assert:
     that:
       - "ansible_version.full is version_compare('2.12.0', '<')"
@@ -7,7 +7,7 @@
     success_msg: "Congratulations. You are using ansible version {{ ansible_version.full }}"
   delegate_to: localhost
 
-- name: try to remove entries from /etc/crontab
+- name: (SCHEDULE) (OLD) try to remove entries from /etc/crontab
   ansible.builtin.cron:
     name: "do1jlr.restic backup {{ item.name }}"
     job: "CRON=true {{ restic_script_dir }}/backup-{{ item.name | replace(' ', '') }}.sh"
@@ -29,7 +29,7 @@
   ignore_error: true
   register: cron_delete
 
-- name: "make sure 'do1jlr.restic backup {{ item.name }}' is not in /etc/crontab"
+- name: "(SCHEDULE) (OLD) make sure 'do1jlr.restic backup {{ item.name }}' is not in /etc/crontab"
   become: true
   ansible.builtin.lineinfile:
     path: '/etc/crontab'
@@ -38,7 +38,7 @@
   when: cron_delete.failed
   with_items: '{{ restic_backups }}'
 
-- name: "make sure '{{ restic_script_dir }}/backup-{{ item.name | replace(' ', '') }}.sh' is not in /etc/crontab"
+- name: "(SCHEDULE) (OLD) make sure '{{ restic_script_dir }}/backup-{{ item.name | replace(' ', '') }}.sh' is not in /etc/crontab"
   become: true
   ansible.builtin.lineinfile:
     path: '/etc/crontab'

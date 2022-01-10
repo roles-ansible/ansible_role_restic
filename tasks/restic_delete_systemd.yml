@@ -1,7 +1,7 @@
 ---
-- name: remove systemd timer
+- name: (SCHEDULE) (SYSTEMD) remove systemd timer
   block:
-    - name: mask restic timer
+    - name: (SCHEDULE) (SYSTEMD) mask restic timer
       become: true
       ansible.builtin.systemd:
         name: "restic-{{ item.name | replace(' ', '') | string }}.timer"
@@ -18,7 +18,7 @@
         - item.scheduled | default(false)
         - restic_schedule_type == "cronjob" or restic_force_cron | default(false)
 
-    - name: mask restic service
+    - name: (SCHEDULE) (SYSTEMD) mask restic service
       become: true
       ansible.builtin.systemd:
         name: "restic-{{ item.name | replace(' ', '') | string }}.service"
@@ -35,7 +35,7 @@
       failed_when: false
       changed_when: false
 
-    - name: delete systemd .timer file
+    - name: (SCHEDULE) (SYSTEMD) delete systemd .timer file
       become: true
       ansible.builtin.file:
         path: "/lib/systemd/system/restic-{{ item.name | replace(' ', '') }}.timer"
@@ -46,7 +46,7 @@
         - item.scheduled | default(false)
         - restic_schedule_type == "cronjob" or restic_force_cron | default(false)
 
-    - name: delete systemd .service file
+    - name: (SCHEDULE) (SYSTEMD) delete systemd .service file
       become: true
       ansible.builtin.file:
         path: "/lib/systemd/system/restic-{{ item.name | replace(' ', '') }}.service"
