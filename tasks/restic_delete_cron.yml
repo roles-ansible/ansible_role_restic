@@ -7,7 +7,7 @@
     hour: '{{ item.schedule_hour | default("2") }}'
     weekday: '{{ item.schedule_weekday | default("*") }}'
     month: '{{ item.schedule_month | default("*") }}'
-    state: present
+    state: absent
     user: 'root'
     cron_file: restic_backup
   become: true
