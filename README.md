@@ -69,7 +69,7 @@ ansible-galaxy install arillso.restic
 | `restic_version`       | `'0.12.1'`                          | The version of Restic to install                                            |
 | `restic_download_path` | `'/opt/restic'`                     | Download location for the restic binary                                     |
 | `restic_install_path`  | `'/usr/local/bin'`                  | Install location for the restic binary                                      |
-| `restic_script_dir`    | `'/opt/restic'`                        | Location of the generated backup scripts                                    |
+| `restic_script_dir`    | `'/opt/restic'`                        | Location of the generated backup scripts                                 |
 | `restic_log_dir`       | `'{{ restic_script_dir }}/log'`     | Location of the logs of the backup scripts                                  |
 | `restic_repos`         | `{}`                                | A dictionary of repositories where snapshots are stored. *(More Info: [Repos](#Repos))* |
 | `restic_backups`       | `{}` (or `[]`)                      | A list of dictionaries specifying the files and directories to be backed up *(More Infos: [Backups](#Backups))* |
@@ -79,6 +79,8 @@ ansible-galaxy install arillso.restic
 | `restic_dir_group`     | `'{{ansible_user}}'`                | The group of all created dirs                                               |
 | `restic_no_log`        | `true`                              | set to false to see hidden ansible logs                                     |
 | `restic_do_not_cleanup_cron ` | `false`                      | we changed the cron location and clean up the old one. You can skip the cleanup here |
+| `restic__cache_config` | `false`                             | configure custom cache directory                                            |
+| `restic__cache_dir`    | `'~/.cache/restic'`                 | define custom cache directory                                               |
 
 ### Repos
 Restic stores data in repositories. You have to specify at least one repository
