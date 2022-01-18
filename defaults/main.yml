@@ -24,5 +24,9 @@ restic_systemd_timer_default_OnCalendar: '*-*-* 02:00:00'
 submodules_versioncheck: false
 restic_do_not_cleanup_cron: false
 
+# cache
+restic__cache_config: false
+restic__cache_dir: '~/.cache/restic'
+
 # outdated variables because of irritating names, but kept for compatibility
 restic_create_cron: false
