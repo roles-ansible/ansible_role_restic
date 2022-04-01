@@ -56,11 +56,14 @@ CRON=true /path/to/backup/script/backup-example.sh
 ```
 ## Installation
 
+There are multiple ways to install the role. Either clone or download it directly from the [github repository](https://github.com/roles-ansible/ansible_role_restic.git). Or Install it via [ansible galaxy](https://galaxy.ansible.com/do1jlr/restic):
 ```bash
-ansible-galaxy install arillso.restic
+ansible-galaxy install do1jlr.restic
 ```
 ## Requirements
 * bzip2
+* jmespath
+
 ## Role Variables
 
 | Name                   | Default                             | Description                                                                 |
@@ -81,6 +84,7 @@ ansible-galaxy install arillso.restic
 | `restic_do_not_cleanup_cron ` | `false`                      | we changed the cron location and clean up the old one. You can skip the cleanup here |
 | `restic__cache_config` | `false`                             | configure custom cache directory                                            |
 | `restic__cache_dir`    | `'~/.cache/restic'`                 | define custom cache directory                                               |
+|`submodules_versioncheck`| `false`                            | if you set this variable to true, the role will run a [simple versionscheck](tasks/versioncheck.yml) to prevent running older versions of this role. |
 
 ### Repos
 Restic stores data in repositories. You have to specify at least one repository
@@ -192,13 +196,29 @@ Please refer to the use of the specific keys to the
 [documentation](https://restic.readthedocs.io/en/latest/040_backup.html#excluding-files).
 
 ## Dependencies
-none
+This role does not have any other ansible role as dependencie.
+
 ## Example Playbook
 
 ```yml
-- hosts: all
+- name: backup your homefolders to /mnt/backup everyday night
+  hosts: localhost
   roles:
-    - restic
+    - {role: do1jlr.restic, tags: restic}
+  vars:
+    restic_create_schedule: true
+    restic_repos:
+      local:
+        location: '/mnt/backup'
+        password: 'ChangM3'
+        init: true
+    restic_backups:
+      home:
+        name: home
+        repo: local
+        src: /home/
+        scheduled: true
+        schedule_oncalendar: '*-*-* 01:00:00'
 ```
 
 ## License

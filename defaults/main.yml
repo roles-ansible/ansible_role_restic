@@ -1,5 +1,4 @@
 ---
-# defaults file for skeleton
 restic_url: '{{ restic_url_default }}'
 restic_version: '0.12.1'
 restic_download_path: '/opt/restic'
@@ -18,7 +17,7 @@ restic_dir_group: '{{ ansible_user | default(ansible_user_id) }}'
 
 # timer defaults
 restic_systemd_timer_randomizeddelaysec: '4h'
-restic_systemd_timer_default_OnCalendar: '*-*-* 02:00:00'
+restic_systemd_timer_default_oncalendar: '*-*-* 02:00:00'
 
 # perform simple version check for this role? (true is recomended)
 submodules_versioncheck: false
