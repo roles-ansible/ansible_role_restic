@@ -7,6 +7,7 @@
         url: '{{ restic_url }}'
         dest: '{{ restic_download_path }}/restic.bz2'
         force: true
+        mode: 0644
       register: get_url_restic
 
     # TODO: This needs to become independent of the shell module to actually work
@@ -26,6 +27,7 @@
       ansible.builtin.command: "{{ restic_bin_bath }} version"
       ignore_errors: true
       register: restic_test_result
+      changed_when: false
 
     - name: (INSTALL) Remove faulty binary
       ansible.builtin.file:
@@ -50,3 +52,4 @@
     - name: (INSTALL) try restic self-update
       become: true
       ansible.builtin.command: "{{ restic_install_path }}/restic self-update"
+      changed_when: true

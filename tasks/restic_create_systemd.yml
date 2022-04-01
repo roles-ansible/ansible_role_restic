@@ -62,5 +62,5 @@
     - restic_create_schedule | bool
   rescue:
     - name: set cronjob intead of systemd
-      set_fact:
+      ansible.builtin.set_fact:
         restic_force_cron: true

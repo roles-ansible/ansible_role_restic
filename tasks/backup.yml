@@ -1,12 +1,12 @@
 ---
 - name: (BACKUP) reformat dict if necessary
-  set_fact:
+  ansible.builtin.set_fact:
     restic_backups: "{{ restic_backups|dict2items|json_query('[*].value') }}"
   when:
     - restic_backups | type_debug == "dict"
 
 - name: (BACKUP) Create backup credentials
-  template:
+  ansible.builtin.template:
     src: restic_access_Linux.j2
     dest: "{{ restic_script_dir }}/access-{{ item.name | replace(' ', '') }}.sh"
     mode: '0700'
@@ -21,7 +21,7 @@
     - item.repo in restic_repos
 
 - name: (BACKUP) Create backup script
-  template:
+  ansible.builtin.template:
     src: restic_script_Linux.j2
     dest: "{{ restic_script_dir }}/backup-{{ item.name | replace(' ', '') }}.sh"
     mode: '0700'
