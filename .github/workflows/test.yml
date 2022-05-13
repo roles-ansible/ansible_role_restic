@@ -51,7 +51,7 @@ jobs:
         with:
           path: "${{ github.repository }}"
       - name: molecule
-        uses: robertdebock/molecule-action@4.0.7
+        uses: robertdebock/molecule-action@4.0.8
         env:
           MOLECULE_DISTRO: ${{ matrix.distro }}
         with:
