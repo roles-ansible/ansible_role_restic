@@ -178,6 +178,9 @@ fi
 if [[ $? -eq 0 ]]
 then
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') OK" {{ forget_result_log }}
+    {% if item.monitoring_call is defined %}
+    {{ item.monitoring_call }}
+    {% endif %}
 else
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') ERROR" {{ forget_result_log }}
     {% if item.mail_on_error is defined and item.mail_on_error == true %}
