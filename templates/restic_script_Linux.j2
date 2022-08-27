@@ -62,6 +62,67 @@ export B2_ACCOUNT_KEY={{ restic_repos[item.repo].b2_account_key }}
 BACKUP_SOURCE={{ item.src }}
 {% endif %}
 
+{% if item.lvm is defined %}
+# Set up functions for LVM.
+
+function mount_opt_map {
+    mount_type="$1"
+    case "$mount_type" in
+        xfs)
+            echo "noatime,nouuid"
+            ;;
+        ext4)
+            echo "noatime"
+            ;;
+        *)
+            echo "noatime"
+    esac
+}
+
+function prepare_vol {
+    local path="$1"
+    [ -d "$path" ] || path="$(dirname "$path")"
+
+    # TODO: path cannot be /,
+    ## nor can it be where restic is
+    {
+        local source="$(findmnt -J -T ${path} | jq -r '.filesystems[0].source')"
+        local target="$(findmnt -J -T ${path} | jq -r '.filesystems[0].target')"
+        subdir=${path##$target}
+        echo "Creating snapshot ..."
+        lvcreate -y -L "${size:-10G}" -s -n "${source}_snap" "${source}"
+
+        local tmpdir="$(mktemp -d)"
+        local fs="$(lsblk -J --fs "$source" | jq -r '.blockdevices[0]|.fstype')"
+        echo "Identified fstype: $fs; using opts $(mount_opt_map "$fs") ..."
+        mount -t "$fs" \
+              -o "$(mount_opt_map "$fs")" \
+              --make-private \
+              -m \
+              "${source}_snap" "${tmpdir}"
+
+        mount -m --bind --make-private "${tmpdir}/${subdir}" "${path}"
+    }
+}
+
+function cleanup_vol {
+    local path="$1"
+    [ -d "$path" ] || path="$(dirname "$path")"
+
+    {
+        local source="$(findmnt -v -f -J -T ${path} | jq -r '.filesystems[0].source')"
+        echo "Cleaning up mount ..."
+        umount "${path}"
+
+        echo "Cleaning up snapshot ..."
+        if ! grep -q '_snap$' <<< $source; then
+            echo "Snapshot for ${path} could not be found (found: ${source}). Exiting!" && return 1;
+        fi
+        umount "${source}"
+        lvremove -y "${source}";
+    }
+}
+{% endif %}
 
 set -uxo pipefail
 {#
@@ -150,10 +211,14 @@ fi
     {% if item.exclude is defined %}{{ exclude(item.exclude) }}{% endif %} \
     $@ \
 {% else %}
+{
+  {% if item.lvm is defined %}prepare_vol $BACKUP_SOURCE &&{% endif %}
   {{ restic_install_path }}/restic backup $BACKUP_SOURCE $MODE_TAG \
     {{ tags(item.tags) }} \
     {% if item.exclude is defined %}{{ exclude(item.exclude) }}{% endif %} \
     $@ \
+    {% if item.lvm is defined %}&& cleanup_vol $BACKUP_SOURCE{% endif %};
+} \
 {% endif %} {{ backup_output_log }}
 if [[ $? -eq 0 ]]
 then
@@ -166,7 +231,10 @@ else
         {{ ' ' }}We tried to backup '{{ item.src }}'.
       {%- endif -%}
       {{ ' ' }}Please repair the restic-{{ item.name | replace(' ', '') }} job."
-    {% endif %}
+{% if item.lvm is defined %}
+    cleanup_vol $BACKUP_SOURCE
+{% endif %}
+{% endif %}
 fi
 
 
