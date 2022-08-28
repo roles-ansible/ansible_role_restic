@@ -110,14 +110,16 @@ function cleanup_vol {
     [ -d "$path" ] || path="$(dirname "$path")"
 
     {
-        local source="$(findmnt -v -f -J -T ${path} | jq -r '.filesystems[0].source')"
+        local source="$(findmnt -v -J -T ${path} | jq -r '.filesystems[]|.source' | grep '_snap$')"
+
+        if ! grep -q '_snap$' <<< $source; then
+            echo "Snapshot for ${path} could not be found (found: ${source}). Exiting!" && return 1;
+        fi
+
         echo "Cleaning up mount ..."
         umount "${path}"
 
         echo "Cleaning up snapshot ..."
-        if ! grep -q '_snap$' <<< $source; then
-            echo "Snapshot for ${path} could not be found (found: ${source}). Exiting!" && return 1;
-        fi
         umount "${source}"
         lvremove -y "${source}";
     }
