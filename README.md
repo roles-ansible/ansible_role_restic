@@ -183,7 +183,7 @@ the `exclude` key on a backup allows you to specify multiple files to exclude or
 files to look for filenames to be excluded. You can specify the following keys:
 ```yaml
 exclude:
-    exclude_cache: true
+    exclude_caches: true
     exclude:
         - /path/to/file
     iexclude:
