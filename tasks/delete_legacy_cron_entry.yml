@@ -8,6 +8,7 @@
   delegate_to: localhost
 
 - name: (SCHEDULE) (OLD) try to remove entries from /etc/crontab
+  become: true
   ansible.builtin.cron:
     name: "do1jlr.restic backup {{ item.name }}"
     job: "CRON=true {{ restic_script_dir }}/backup-{{ item.name | replace(' ', '') }}.sh"
@@ -18,7 +19,6 @@
     state: absent
     cron_file: '/etc/crontab'
     user: 'root'
-  become: true
   no_log: "{{ restic_no_log }}"
   with_items: '{{ restic_backups }}'
   when:
@@ -26,11 +26,10 @@
     - item.name is defined
     - item.scheduled | default(false)
     - ansible_service_mgr != 'systemd' or restic_force_cron | default(false) or restic_schedule_type == "cronjob"
-  ignore_error: true
-  tags: skip_ansible_lint
   register: cron_delete
+  failed_when: false
 
-- name: "(SCHEDULE) (OLD) make sure 'do1jlr.restic backup {{ item.name }}' is not in /etc/crontab"
+- name: "(SCHEDULE) (OLD) make sure do1jlr.restic backup script is not in /etc/crontab"
   become: true
   ansible.builtin.lineinfile:
     path: '/etc/crontab'
@@ -39,7 +38,7 @@
   when: cron_delete.failed
   with_items: '{{ restic_backups }}'
 
-- name: "(SCHEDULE) (OLD) make sure '{{ restic_script_dir }}/backup-{{ item.name | replace(' ', '') }}.sh' is not in /etc/crontab"
+- name: "(SCHEDULE) (OLD) make sure restic script is not in /etc/crontab"
   become: true
   ansible.builtin.lineinfile:
     path: '/etc/crontab'
