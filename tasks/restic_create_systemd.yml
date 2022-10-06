@@ -1,5 +1,9 @@
 ---
 - name: (SCHEDULE) (SYSTEMD) create systemd timer
+  when:
+    - ansible_service_mgr == 'systemd'
+    - restic_schedule_type == "systemd"
+    - restic_create_schedule | bool
   block:
     - name: (SCHEDULE) (SYSTEMD) copy systemd timer
       become: true
@@ -56,11 +60,7 @@
       when:
         - item.name is defined
         - item.scheduled | default(false)
-  when:
-    - ansible_service_mgr == 'systemd'
-    - restic_schedule_type == "systemd"
-    - restic_create_schedule | bool
   rescue:
-    - name: set cronjob intead of systemd
+    - name: Set cronjob intead of systemd
       ansible.builtin.set_fact:
         restic_force_cron: true

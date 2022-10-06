@@ -1,22 +1,22 @@
 ---
-- name: add OS specific variables
+- name: Add OS specific variables
   ansible.builtin.include_vars: "{{ lookup('first_found', restic_os_variables) }}"
 
-- name: perform optional versionscheck
+- name: Perform optional versionscheck
   ansible.builtin.include_tasks: 'versioncheck.yml'
   when: submodules_versioncheck | bool
 
-- name: make sure restic is available
+- name: Make sure restic is available
   ansible.builtin.include_tasks: 'preperation.yml'
 
-- name: make sure restic is installed
+- name: Make sure restic is installed
   ansible.builtin.include_tasks: 'install.yml'
   when: not restic_executable.stat.exists or not restic_installed.stat.exists
 
-- name: initialize restic repo(s)
+- name: Initialize restic repo(s)
   ansible.builtin.include_tasks: 'configure.yml'
 
-- name: create backup script
+- name: Create backup script
   ansible.builtin.include_tasks: 'backup.yml'
   loop_control:
     loop_var: loop_distribution
@@ -25,7 +25,7 @@
     distribution_version: '{{ ansible_distribution_version }}'
     distribution_major_version: '{{ ansible_distribution_major_version }}'
 
-- name: schedule restic backup
+- name: Schedule restic backup
   ansible.builtin.include_tasks: 'schedule.yml'
   loop_control:
     loop_var: loop_distribution
