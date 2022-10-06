@@ -2,10 +2,10 @@
 - name: Converge
   hosts: all
   roles:
-    - {role: ansible_role_restic}
+    - {role: ../../}
   pre_tasks:
-    - name: install bzip2
-      package:
+    - name: Install bzip2
+      ansible.builtin.package:
         name: bzip2
         state: present
   vars:
@@ -36,10 +36,10 @@
 - name: Converge with dict
   hosts: all
   roles:
-    - role: ansible_role_restic
+    - {role: ../../}
   pre_tasks:
-    - name: install bzip2
-      package:
+    - name: Install bzip2
+      ansible.builtin.package:
         name: bzip2
         state: present
   vars:

@@ -1,9 +1,9 @@
 ---
-- name: "include tasks for testing backup files"
-  include_tasks: "test_backup_files.yml"
+- name: "Include tasks for testing backup files"
+  ansible.builtin.include_tasks: "test_backup_files.yml"
 
-- name: "include tasks for testing access files"
-  include_tasks: "test_access_files.yml"
+- name: "Include tasks for testing access files"
+  ansible.builtin.include_tasks: "test_access_files.yml"
 
-- name: "include tasks for testing restic link"
-  include_tasks: "test_restic_link.yml"
+- name: "Include tasks for testing restic link"
+  ansible.builtin.include_tasks: "test_restic_link.yml"

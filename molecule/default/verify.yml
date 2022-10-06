@@ -4,5 +4,5 @@
   hosts: all
   tasks:
     - name: "Include test_alpha-services"
-      include_role:
+      ansible.builtin.include_role:
         name: "test_restic"

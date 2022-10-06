@@ -1,27 +1,31 @@
 ---
 - name: Stat test backup file
-  stat:
+  ansible.builtin.stat:
     path: /opt/restic/backup-test.sh
   register: test_file
+
 - name: Check that the test backup file exists
-  assert:
+  ansible.builtin.assert:
     that:
       - test_file.stat.exists
 
 - name: Stat test_stdin backup file
-  stat:
+  ansible.builtin.stat:
     path: /opt/restic/backup-test_stdin.sh
   register: test_stdin_file
+
 - name: Check that the test_stdin backup file exists
-  assert:
+  ansible.builtin.assert:
     that:
       - test_stdin_file.stat.exists
 
 - name: Run the backup scripts
-  shell: "./{{ item }}"
+  ansible.builtin.shell: "./{{ item }}"
   args:
     chdir: /opt/restic/
   with_items:
     - backup-dicttest.sh
     - backup-test.sh
     - backup-test_stdin.sh
+  changed_when: true
+  tags: skip_ansible_lint_rule_command-instead-of-shell
