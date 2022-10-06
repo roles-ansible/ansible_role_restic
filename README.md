@@ -160,13 +160,13 @@ Example:
 restic_backups:
   data:
     name: data
-    repo: remove
+    repo: remote
     src: /path/to/data
     scheduled: true
     schedule_oncalendar: '*-*-* 01:00:00'
   database:
     name: database
-    repo: remove
+    repo: remote
     stdin: true
     stdin_cmd: pg_dump -Ubackup db_name
     stdin_filename: db_name_dump.sql
