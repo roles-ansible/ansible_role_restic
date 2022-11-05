@@ -7,7 +7,7 @@
   when: submodules_versioncheck | bool
 
 - name: Make sure restic is available
-  ansible.builtin.include_tasks: 'preperation.yml'
+  ansible.builtin.include_tasks: 'preparation.yml'
 
 - name: Make sure restic is installed
   ansible.builtin.include_tasks: 'install.yml'
