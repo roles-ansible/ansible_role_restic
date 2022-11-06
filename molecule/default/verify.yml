@@ -1,8 +1,0 @@
----
-# This is an example playbook to execute Ansible tests.
-- name: Verify
-  hosts: all
-  tasks:
-    - name: "Include test_alpha-services"
-      include_role:
-        name: "test_restic"

@@ -1,9 +1,0 @@
----
-- name: Stat test restic link
-  stat:
-    path: ~/restic/restic
-  register: restic_link
-- name: Check that the test restic link exists
-  assert:
-    that:
-      - restic_link.stat.exists
