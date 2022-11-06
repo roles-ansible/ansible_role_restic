@@ -3,7 +3,6 @@
 
 > **Beta:** This role is in beta status.
 
-[![🎭 Tests](https://github.com/roles-ansible/ansible_role_restic/actions/workflows/test.yml/badge.svg)](https://github.com/roles-ansible/ansible_role_restic/actions/workflows/test.yml)
 [![license](https://raw.githubusercontent.com/roles-ansible/ansible_role_restic/main/.github/license.svg)](https://github.com/roles-ansible/ansible_role_restic/blob/main/LICENSE)
 [![Ansible Galaxy](https://raw.githubusercontent.com/roles-ansible/ansible_role_restic/main/.github/galaxy.svg)](https://galaxy.ansible.com/do1jlr/restic)
 
