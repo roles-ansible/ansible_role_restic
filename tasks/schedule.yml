@@ -15,7 +15,7 @@
 
 - name: (SCHEDULE) delete old cron entry from previous versions of this role
   ansible.builtin.include_tasks: delete_legacy_cron_entry.yml
-  when: restic_do_not_cleanup_cron | bool
+  when: not restic_do_not_cleanup_cron | bool
 
 - name: (SCHEDULE) install restic via cronjob
   ansible.builtin.include_tasks: restic_create_cron.yml
@@ -30,3 +30,4 @@
     - ansible_service_mgr == 'systemd'
     - not restic_force_cron | default(false)
     - restic_schedule_type != "cronjob"
+    - not restic_do_not_cleanup_cron | bool
