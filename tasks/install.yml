@@ -12,7 +12,7 @@
 
     # TODO: This needs to become independent of the shell module to actually work
     - name: (INSTALL) Decompress the binary
-      ansible.builtin.shell: "bzip2 -dc {{ get_url_restic.dest }} > {{ restic_bin_bath }}"
+      ansible.builtin.shell: "bzip2 -dc {{ get_url_restic.dest }} > {{ restic_bin_path }}"
       args:
         creates: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
 
@@ -24,14 +24,14 @@
         group: '{{ restic_dir_group }}'
 
     - name: (INSTALL) Test the binary
-      ansible.builtin.command: "{{ restic_bin_bath }} version"
+      ansible.builtin.command: "{{ restic_bin_path }} version"
       ignore_errors: true
       register: restic_test_result
       changed_when: false
 
     - name: (INSTALL) Remove faulty binary
       ansible.builtin.file:
-        path: '{{ restic_bin_bath }}'
+        path: '{{ restic_bin_path }}'
         state: absent
       when: "'FAILED' in restic_test_result.stderr"
 
