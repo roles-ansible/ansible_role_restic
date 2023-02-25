@@ -12,7 +12,7 @@ restic_create_paths:
   - '{{ restic_script_dir }}'
   - '{{ restic_log_dir }}'
 
-restic_bin_bath: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
+restic_bin_path: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
 
 restic_url_r: 'https://github.com/restic/restic/releases/download/'
 arch: '{{ ansible_architecture }}'

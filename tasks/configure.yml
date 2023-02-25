@@ -5,10 +5,7 @@
     RESTIC_REPOSITORY: '{{ item.value.location }}'
     RESTIC_PASSWORD: '{{ item.value.password }}'
     AWS_ACCESS_KEY_ID: '{{ item.value.aws_access_key | default("") }}'
-    AWS_SECRET_ACCESS_KEY: '{{
-      item.value.aws_secret_access_key
-      | default("")
-    }}'
+    AWS_SECRET_ACCESS_KEY: '{{ item.value.aws_secret_access_key | default("") }}'
     AWS_DEFAULT_REGION: '{{ item.value.aws_default_region | default("") }}'
     B2_ACCOUNT_ID: '{{ item.value.b2_account_id | default("") }}'
     B2_ACCOUNT_KEY: '{{ item.value.b2_account_key | default("") }}'
