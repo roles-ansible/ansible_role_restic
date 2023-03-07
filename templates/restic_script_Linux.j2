@@ -226,27 +226,31 @@ fi
   {{ restic_install_path }}/restic backup {% if item.lvm is defined and item.src == '/' %}/rootfs{% endif %}$BACKUP_SOURCE $MODE_TAG \
     {{ tags(item.tags) }} \
     {% if item.exclude is defined %}{{ exclude(item.exclude) }}{% endif %} \
-    $@ \
-    {% if item.lvm is defined %}&& cleanup_vol $BACKUP_SOURCE{% endif %};
+    $@
 } \
 {% endif %} {{ backup_output_log }}
-if [[ $? -eq 0 ]]
-then
-    echo "$(date -u '+%Y-%m-%d %H:%M:%S') OK" {{ backup_result_log }}
-else
-    echo "$(date -u '+%Y-%m-%d %H:%M:%S') ERROR" {{ backup_result_log }}
+
+case $? in
+    0)
+        echo "$(date -u '+%Y-%m-%d %H:%M:%S') OK" {{ backup_result_log }}
+        ;;
+    3)
+        echo "$(date -u '+%Y-%m-%d %H:%M:%S') WARNING" {{ backup_result_log }}
+        ;;
+    *)
+        echo "$(date -u '+%Y-%m-%d %H:%M:%S') ERROR" {{ backup_result_log }}
     {% if item.mail_on_error is defined and item.mail_on_error == true %}
     mail -s "restic backup failed on {{ ansible_hostname }}" {{ item.mail_address }}  <<< "Something went wrong while running restic backup script running at {{ ansible_hostname }} at $(date -u '+%Y-%m-%d %H:%M:%S').
       {%- if item.src is defined -%}
         {{ ' ' }}We tried to backup '{{ item.src }}'.
       {%- endif -%}
       {{ ' ' }}Please repair the restic-{{ item.name | replace(' ', '') }} job."
+{% endif %}
+esac
+
 {% if item.lvm is defined %}
     cleanup_vol $BACKUP_SOURCE
 {% endif %}
-{% endif %}
-fi
-
 
 
 {#
