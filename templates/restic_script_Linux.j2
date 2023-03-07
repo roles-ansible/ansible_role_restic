@@ -82,9 +82,13 @@ function mount_opt_map {
 function prepare_vol {
     local path="$1"
     [ -d "$path" ] || path="$(dirname "$path")"
+    if [ "$path" == '/' ] ; then
+        mkdir -p /rootfs;
+        newpath='/rootfs';
+    else
+        newpath="$path";
+    fi
 
-    # TODO: path cannot be /,
-    ## nor can it be where restic is
     {
         local source="$(findmnt -J -T ${path} | jq -r '.filesystems[0].source')"
         local target="$(findmnt -J -T ${path} | jq -r '.filesystems[0].target')"
@@ -98,26 +102,30 @@ function prepare_vol {
         mount -t "$fs" \
               -o "$(mount_opt_map "$fs")" \
               --make-private \
-              -m \
               "${source}_snap" "${tmpdir}"
 
-        mount -m --bind --make-private "${tmpdir}/${subdir}" "${path}"
+        mount --bind --make-private "${tmpdir}/${subdir}" "${newpath}"
     }
 }
 
 function cleanup_vol {
     local path="$1"
     [ -d "$path" ] || path="$(dirname "$path")"
+    if [ "$path" == '/' ] ; then
+        newpath='/rootfs';
+    else
+        newpath="$path";
+    fi
 
     {
-        local source="$(findmnt -v -J -T ${path} | jq -r '.filesystems[]|.source' | grep '_snap$')"
+        local source="$(findmnt -v -J -T "${newpath}" | jq -r '.filesystems[]|.source' | grep '_snap$')"
 
         if ! grep -q '_snap$' <<< $source; then
             echo "Snapshot for ${path} could not be found (found: ${source}). Exiting!" && return 1;
         fi
 
         echo "Cleaning up mount ..."
-        umount "${path}"
+        umount "${newpath}"
 
         echo "Cleaning up snapshot ..."
         umount "${source}"
@@ -215,7 +223,7 @@ fi
 {% else %}
 {
   {% if item.lvm is defined %}prepare_vol $BACKUP_SOURCE &&{% endif %}
-  {{ restic_install_path }}/restic backup $BACKUP_SOURCE $MODE_TAG \
+  {{ restic_install_path }}/restic backup {% if item.lvm is defined and item.src == '/' %}/rootfs{% endif %}$BACKUP_SOURCE $MODE_TAG \
     {{ tags(item.tags) }} \
     {% if item.exclude is defined %}{{ exclude(item.exclude) }}{% endif %} \
     $@ \
