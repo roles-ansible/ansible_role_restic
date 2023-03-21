@@ -6,6 +6,7 @@
     fail_msg: "[ERROR] Youre ansible version is above 2.12.0"
     success_msg: "Congratulations. You are using ansible version {{ ansible_version.full }}"
   delegate_to: localhost
+  ignore_errors: true
 
 - name: (SCHEDULE) (OLD) try to remove entries from /etc/crontab
   become: true
