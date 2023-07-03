@@ -27,5 +27,9 @@ restic_do_not_cleanup_cron: false
 restic__cache_config: false
 restic__cache_dir: '~/.cache/restic'
 
+# limit maximum number of CPUs that can be used simultaneously
+restic__limit_cpu_usage: false
+restic__max_cpus: 1
+
 # outdated variables because of irritating names, but kept for compatibility
 restic_create_cron: false

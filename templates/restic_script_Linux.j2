@@ -40,6 +40,11 @@ fi
   export XDG_CACHE_HOME={{ restic__cache_dir }}
 {% endif %}
 
+{% if restic__limit_cpu_usage | bool -%}
+# Maximum number of CPUs used by restic is limited to {{ restic__max_cpus }}
+export GOMAXPROCS={{ restic__max_cpus }}
+{% endif %}
+
 export RESTIC_REPOSITORY={{ restic_repos[item.repo].location }}
 export RESTIC_PASSWORD='{{ restic_repos[item.repo].password | regex_replace('\'', '\'\\\'\'') }}'
 BACKUP_NAME={{ item.name }}
