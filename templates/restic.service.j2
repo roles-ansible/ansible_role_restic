@@ -1,8 +1,15 @@
 [Unit]
 Description=Backup {{ item.name }} using restic
+{% if item.lvm is defined %}
+Conflicts=fstrim.service
+After=fstrim.timer
+{% endif %}
 
 [Service]
 Type=oneshot
+{% if item.lvm is defined %}
+PrivateMounts=on
+{% endif %}
 ExecStart={{ restic_script_dir }}/backup-{{ item.name }}.sh
 TimeoutStartSec=0
 Environment="CRON=true"

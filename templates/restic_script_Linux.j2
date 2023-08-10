@@ -67,6 +67,77 @@ export B2_ACCOUNT_KEY={{ restic_repos[item.repo].b2_account_key }}
 BACKUP_SOURCE={{ item.src }}
 {% endif %}
 
+{% if item.lvm is defined %}
+# Set up functions for LVM.
+
+function mount_opt_map {
+    mount_type="$1"
+    case "$mount_type" in
+        xfs)
+            echo "noatime,nouuid"
+            ;;
+        ext4)
+            echo "noatime"
+            ;;
+        *)
+            echo "noatime"
+    esac
+}
+
+function prepare_vol {
+    local path="$1"
+    [ -d "$path" ] || path="$(dirname "$path")"
+    if [ "$path" == '/' ] ; then
+        mkdir -p /rootfs;
+        newpath='/rootfs';
+    else
+        newpath="$path";
+    fi
+
+    {
+        local source="$(findmnt -J -T ${path} | jq -r '.filesystems[0].source')"
+        local target="$(findmnt -J -T ${path} | jq -r '.filesystems[0].target')"
+        subdir=${path##$target}
+        echo "Creating snapshot ..."
+        lvcreate -y -L "${size:-10G}" -s -n "${source}_snap" "${source}"
+
+        local tmpdir="$(mktemp -d)"
+        local fs="$(lsblk -J --fs "$source" | jq -r '.blockdevices[0]|.fstype')"
+        echo "Identified fstype: $fs; using opts $(mount_opt_map "$fs") ..."
+        mount -t "$fs" \
+              -o "$(mount_opt_map "$fs")" \
+              --make-private \
+              "${source}_snap" "${tmpdir}"
+
+        mount --bind --make-private "${tmpdir}/${subdir}" "${newpath}"
+    }
+}
+
+function cleanup_vol {
+    local path="$1"
+    [ -d "$path" ] || path="$(dirname "$path")"
+    if [ "$path" == '/' ] ; then
+        newpath='/rootfs';
+    else
+        newpath="$path";
+    fi
+
+    {
+        local source="$(findmnt -v -J -T "${newpath}" | jq -r '.filesystems[]|.source' | grep '_snap$')"
+
+        if ! grep -q '_snap$' <<< $source; then
+            echo "Snapshot for ${path} could not be found (found: ${source}). Exiting!" && return 1;
+        fi
+
+        echo "Cleaning up mount ..."
+        umount "${newpath}"
+
+        echo "Cleaning up snapshot ..."
+        umount "${source}"
+        lvremove -y "${source}";
+    }
+}
+{% endif %}
 
 set -uxo pipefail
 {#
@@ -155,25 +226,36 @@ fi
     {% if item.exclude is defined %}{{ exclude(item.exclude) }}{% endif %} \
     $@ \
 {% else %}
-  {{ restic_install_path }}/restic backup $BACKUP_SOURCE $MODE_TAG \
+{
+  {% if item.lvm is defined %}prepare_vol $BACKUP_SOURCE &&{% endif %}
+  {{ restic_install_path }}/restic backup {% if item.lvm is defined and item.src == '/' %}/rootfs{% endif %}$BACKUP_SOURCE $MODE_TAG \
     {{ tags(item.tags) }} \
     {% if item.exclude is defined %}{{ exclude(item.exclude) }}{% endif %} \
-    $@ \
+    $@
+} \
 {% endif %} {{ backup_output_log }}
-if [[ $? -eq 0 ]]
-then
-    echo "$(date -u '+%Y-%m-%d %H:%M:%S') OK" {{ backup_result_log }}
-else
-    echo "$(date -u '+%Y-%m-%d %H:%M:%S') ERROR" {{ backup_result_log }}
+
+case $? in
+    0)
+        echo "$(date -u '+%Y-%m-%d %H:%M:%S') OK" {{ backup_result_log }}
+        ;;
+    3)
+        echo "$(date -u '+%Y-%m-%d %H:%M:%S') WARNING" {{ backup_result_log }}
+        ;;
+    *)
+        echo "$(date -u '+%Y-%m-%d %H:%M:%S') ERROR" {{ backup_result_log }}
     {% if item.mail_on_error is defined and item.mail_on_error == true %}
     mail -s "restic backup failed on {{ ansible_hostname }}" {{ item.mail_address }}  <<< "Something went wrong while running restic backup script running at {{ ansible_hostname }} at $(date -u '+%Y-%m-%d %H:%M:%S').
       {%- if item.src is defined -%}
         {{ ' ' }}We tried to backup '{{ item.src }}'.
       {%- endif -%}
       {{ ' ' }}Please repair the restic-{{ item.name | replace(' ', '') }} job."
-    {% endif %}
-fi
+{% endif %}
+esac
 
+{% if item.lvm is defined %}
+    cleanup_vol $BACKUP_SOURCE
+{% endif %}
 
 
 {#
