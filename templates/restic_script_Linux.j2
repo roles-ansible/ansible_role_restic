@@ -31,8 +31,8 @@ fi
 {% set backup_result_log, backup_output_log = "| systemd-cat -t " + item.name, "2>&1 | systemd-cat -t " + item.name %}
 {% set forget_result_log, forget_output_log = "| systemd-cat -t " + item.name, "2>&1 | systemd-cat -t " + item.name %}
 {% else %}
-{% set backup_result_log, backup_output_log = ">> " + restic_log_dir + "/" + item.name + "-backup-result.log", "| tee " + restic_log_dir + "/" + item.name + "-backup-output.log" %}
-{% set forget_result_log, forget_output_log = ">> " + restic_log_dir + "/" + item.name + "-forget-result.log", "| tee " + restic_log_dir + "/" + item.name + "-forget-output.log" %}
+{% set backup_result_log, backup_output_log = ">> " + restic_log_dir + "/" + item.name + "-backup-result.log", " &2>1 | tee " + restic_log_dir + "/" + item.name + "-backup-output.log" %}
+{% set forget_result_log, forget_output_log = ">> " + restic_log_dir + "/" + item.name + "-forget-result.log", " &2>1 | tee " + restic_log_dir + "/" + item.name + "-forget-output.log" %}
 {% endif %}
 {% endif %}
 
