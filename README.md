@@ -113,10 +113,33 @@ restic_repos:
     location: /srv/restic-repo
     password: securepassword1
     init: true
-  remote:
+  sftp:
     location: sftp:user@host:/srv/restic-repo
     password: securepassword2
     init: true
+  aws:
+    location: s3:s3.amazonaws.com/bucket_name
+    password: securepassword3
+    init: true
+    aws_access_key: accesskey
+    aws_secret_access_key: secretaccesskey
+    aws_default_region: eu-west-1
+  azure:
+    location: azure:container:/
+    password: securepassword4
+    init: true
+    azure_account_name: storageaccountname
+    # Only one of the following are required
+    azure_account_key: somekey
+    azure_account_sas: sasurl
+    # Optional
+    azure_endpoint_suffix: core.windows.net
+  b2:
+    location: b2:bucketname:path/to/repo
+    password: securepassword5
+    init: true
+    b2_account_id: accountid
+    b2_account_key: accountkey
 ```
 
 ### Backups
