@@ -7,6 +7,10 @@
     AWS_ACCESS_KEY_ID: '{{ item.value.aws_access_key | default("") }}'
     AWS_SECRET_ACCESS_KEY: '{{ item.value.aws_secret_access_key | default("") }}'
     AWS_DEFAULT_REGION: '{{ item.value.aws_default_region | default("") }}'
+    AZURE_ACCOUNT_NAME: '{{ item.value.azure_account_name | default("") }}'
+    AZURE_ACCOUNT_KEY: '{{ item.value.azure_account_key | default("") }}'
+    AZURE_ACCOUNT_SAS: '{{ item.value.azure_account_sas | default("") }}'
+    AZURE_ENDPOINT_SUFFIX: '{{ item.value.azure_endpoint_suffix | default("") }}'
     B2_ACCOUNT_ID: '{{ item.value.b2_account_id | default("") }}'
     B2_ACCOUNT_KEY: '{{ item.value.b2_account_key | default("") }}'
   no_log: "{{ restic_no_log }}"
