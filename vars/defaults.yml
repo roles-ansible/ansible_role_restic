@@ -21,3 +21,4 @@ restic_system: '{{ ansible_system | lower }}'
 restic_url_v: 'v{{ restic_version }}/restic_{{ restic_version }}_'
 restic_file: '{{ restic_system }}_{{ restic_platform }}.bz2'
 restic_url_default: '{{ restic_url_r }}{{ restic_url_v }}{{ restic_file }}'
+restic_backup_now: false
