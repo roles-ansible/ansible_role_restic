@@ -1,0 +1,4 @@
+---
+- name: (RUN BACKUP) Run backup script
+  ansible.builtin.shell:
+    cmd: "{{ restic_script_dir }}/backup-{{ item.name | replace(' ', '') }}.sh"
