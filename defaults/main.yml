@@ -21,7 +21,7 @@ restic_systemd_timer_default_oncalendar: '*-*-* 02:00:00'
 
 # perform simple version check for this role? (true is recomended)
 submodules_versioncheck: false
-restic_do_not_cleanup_cron: false
+restic_do_not_cleanup_cron: true
 
 # cache
 restic__cache_config: false
