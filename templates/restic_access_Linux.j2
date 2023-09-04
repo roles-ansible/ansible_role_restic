@@ -21,7 +21,7 @@ export AZURE_ACCOUNT_NAME={{ restic_repos[item.repo].azure_account_name }}
 export AZURE_ACCOUNT_KEY={{ restic_repos[item.repo].azure_account_key }}
 {% endif %}
 {% if restic_repos[item.repo].azure_account_sas is defined %}
-export AZURE_ACCOUNT_SAS={{ restic_repos[item.repo].azure_account_sas }}
+export AZURE_ACCOUNT_SAS='{{ restic_repos[item.repo].azure_account_sas }}'
 {% endif %}
 {% if restic_repos[item.repo].azure_endpoint_suffix is defined %}
 export AZURE_ENDPOINT_SUFFIX={{ restic_repos[item.repo].azure_endpoint_suffix }}
