@@ -65,27 +65,28 @@ ansible-galaxy install do1jlr.restic
 
 ## Role Variables
 
-| Name                      | Default                             | Description                                                                 |
-| ----------------------    | ----------------------------------- | --------------------------------------------------------------------------- |
-| `restic_url`              | `undefined`                         | The URL to download restic from. Use this variable to overwrite the default |
-| `restic_version`          | `'0.15.1'`                          | The version of Restic to install                                            |
-| `restic_download_path`    | `'/opt/restic'`                     | Download location for the restic binary                                     |
-| `restic_install_path`     | `'/usr/local/bin'`                  | Install location for the restic binary                                      |
-| `restic_script_dir`       | `'/opt/restic'`                     | Location of the generated backup scripts                                    |
-| `restic_log_dir`          | `'{{ restic_script_dir }}/log'`     | Location of the logs of the backup scripts                                  |
-| `restic_repos`            | `{}`                                | A dictionary of repositories where snapshots are stored. *(More Info: [Repos](#Repos))* |
-| `restic_backups`          | `{}` (or `[]`)                      | A list of dictionaries specifying the files and directories to be backed up *(More Infos: [Backups](#Backups))* |
-|`restic_create_schedule`   | `false`                             | Should we schedule each backup? Either via cronjob or via systemd timer.    |
-| `restic_schedule_type`    | `systemd`                           | Here you can define if we create a ``cronjob`` or a ``systemd`` timer. If it fails to create a systemd timer, a cronjob will be created. |
-| `restic_dir_owner`        | `'{{ansible_user}}'`                | The owner of all created dirs                                               |
-| `restic_dir_group`        | `'{{ansible_user}}'`                | The group of all created dirs                                               |
-| `restic_no_log`           | `true`                              | Set to false to see hidden ansible logs                                     |
-| `restic_do_not_cleanup_cron ` | `false`                      | We changed the cron location and clean up the old one. You can skip the cleanup here |
-| `restic__cache_config`    | `false`                             | Configure custom cache directory                                            |
-| `restic__cache_dir`       | `'~/.cache/restic'`                 | Define custom cache directory                                               |
-|`submodules_versioncheck`  | `false`                             | If you set this variable to true, the role will run a [simple versionscheck](tasks/versioncheck.yml) to prevent running older versions of this role. |
-| `restic__limit_cpu_usage` |  `false`                            | Should CPU usage be limited?                                                |
-| `restic__max_cpus`        |  `1`                                | Maximum number of CPUs that can be used simultaneously                      |
+| Name                          | Default                         | Description                                                                                                                                          |
+|-------------------------------|---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `restic_url`                  | `undefined`                     | The URL to download restic from. Use this variable to overwrite the default                                                                          |
+| `restic_version`              | `'0.15.1'`                      | The version of Restic to install                                                                                                                     |
+| `restic_download_path`        | `'/opt/restic'`                 | Download location for the restic binary                                                                                                              |
+| `restic_install_path`         | `'/usr/local/bin'`              | Install location for the restic binary                                                                                                               |
+| `restic_script_dir`           | `'/opt/restic'`                 | Location of the generated backup scripts                                                                                                             |
+| `restic_log_dir`              | `'{{ restic_script_dir }}/log'` | Location of the logs of the backup scripts                                                                                                           |
+| `restic_repos`                | `{}`                            | A dictionary of repositories where snapshots are stored. *(More Info: [Repos](#Repos))*                                                              |
+| `restic_backups`              | `{}` (or `[]`)                  | A list of dictionaries specifying the files and directories to be backed up *(More Infos: [Backups](#Backups))*                                      |
+| `restic_create_schedule`      | `false`                         | Should we schedule each backup? Either via cronjob or via systemd timer.                                                                             |
+| `restic_backup_now`           | `false`                         | Whether or not the backup script should be run immediately                                                                                           |
+| `restic_schedule_type`        | `systemd`                       | Here you can define if we create a ``cronjob`` or a ``systemd`` timer. If it fails to create a systemd timer, a cronjob will be created.             |
+| `restic_dir_owner`            | `'{{ansible_user}}'`            | The owner of all created dirs                                                                                                                        |
+| `restic_dir_group`            | `'{{ansible_user}}'`            | The group of all created dirs                                                                                                                        |
+| `restic_no_log`               | `true`                          | Set to false to see hidden ansible logs                                                                                                              |
+| `restic_do_not_cleanup_cron ` | `false`                         | We changed the cron location and clean up the old one. You can skip the cleanup here                                                                 |
+| `restic__cache_config`        | `false`                         | Configure custom cache directory                                                                                                                     |
+| `restic__cache_dir`           | `'~/.cache/restic'`             | Define custom cache directory                                                                                                                        |
+| `submodules_versioncheck`     | `false`                         | If you set this variable to true, the role will run a [simple versionscheck](tasks/versioncheck.yml) to prevent running older versions of this role. |
+| `restic__limit_cpu_usage`     | `false`                         | Should CPU usage be limited?                                                                                                                         |
+| `restic__max_cpus`            | `1`                             | Maximum number of CPUs that can be used simultaneously                                                                                               |
 
 ### Repos
 Restic stores data in repositories. You have to specify at least one repository

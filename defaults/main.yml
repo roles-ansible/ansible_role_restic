@@ -9,6 +9,7 @@ restic_repos: {}
 restic_backups: []
 restic_create_schedule: "{{ restic_create_cron }}"
 restic_schedule_type: "systemd"
+restic_backup_now: false
 # restic_schedule_type: "cronjob"
 restic_no_log: true
 

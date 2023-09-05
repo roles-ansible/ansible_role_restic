@@ -1,0 +1,10 @@
+---
+- name: (RUN BACKUP) Run backup script
+  ansible.builtin.command:
+    cmd: "/usr/bin/env sh {{ restic_script_dir }}/backup-{{ item.name | replace(' ', '') }}.sh"
+  no_log: "{{ restic_no_log }}"
+  with_items: '{{ restic_backups }}'
+  when:
+    - item.name is defined
+  register: result
+  changed_when: result.rc != 0
