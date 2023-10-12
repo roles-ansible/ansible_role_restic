@@ -183,7 +183,7 @@ set -uxo pipefail
   Define paths
 #}
 {% macro paths(repo) -%}
-{% if repo.src is defined and repo.src != None and (repo.src is not string)  %}{%for path in repo.src %} --path {{ path }}{% endfor %}{%elif repo.src is string %}--path {{repo.src}} {% else %}{{ repo.stdin_filename }}{% endif %}
+{% if repo.src is defined and repo.src != None and (repo.src is not string)  %}{%for path in repo.src %} --path {{ path }}{% endfor %}{%elif repo.src is string %}--path {{repo.src}} {% else %} --path {{ repo.stdin_filename }}{% endif %}
 {%- endmacro %}
 {#
   Define retention pattern
