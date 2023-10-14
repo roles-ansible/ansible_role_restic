@@ -75,8 +75,11 @@ export B2_ACCOUNT_ID={{ restic_repos[item.repo].b2_account_id }}
 {% if restic_repos[item.repo].b2_account_key is defined %}
 export B2_ACCOUNT_KEY={{ restic_repos[item.repo].b2_account_key }}
 {% endif %}
-{% if item.src is defined %}
+{% if item.src is defined  and item.src is string %}
 BACKUP_SOURCE={{ item.src }}
+{% endif %}
+{% if item.src is defined  and item.src.__class__.__name__ =='list' %}
+BACKUP_SOURCE={{ item.src| join(' ') }}
 {% endif %}
 
 {% if item.lvm is defined %}
@@ -177,10 +180,10 @@ set -uxo pipefail
   {% if n is defined %} --stdin-filename {{ n }}{% endif %}
 {%- endmacro %}
 {#
-  Define path
+  Define paths
 #}
-{% macro path(repo) -%}
-  {% if repo.src is defined and repo.src != None and (repo.src|length>0)  %}{{ repo.src }}{% else %}{{ repo.stdin_filename }}{% endif %}
+{% macro paths(repo) -%}
+{% if repo.src is defined and repo.src != None and (repo.src is not string)  %}{%for path in repo.src %} --path {{ path }}{% endfor %}{%elif repo.src is string %}--path {{repo.src}} {% else %} --path {{ repo.stdin_filename }}{% endif %}
 {%- endmacro %}
 {#
   Define retention pattern
@@ -273,7 +276,7 @@ esac
 {#
   Define stdin forget commands
 #}
-{{ restic_install_path }}/restic forget --path {{ path(item) }} {{ retention_pattern(item) }} {% if item.prune is defined and item.prune == true %}--prune{% endif %} {{ forget_output_log }}
+{{ restic_install_path }}/restic forget {{ paths(item) }} {{ retention_pattern(item) }} {% if item.prune is defined and item.prune == true %}--prune{% endif %} {{ forget_output_log }}
 if [[ $? -eq 0 ]]
 then
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') OK" {{ forget_result_log }}
