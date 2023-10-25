@@ -1,6 +1,6 @@
 ---
 restic_url: '{{ restic_url_default }}'
-restic_version: '0.15.1'
+restic_version: '0.16.1'
 restic_download_path: '/opt/restic'
 restic_install_path: '/usr/local/bin'
 restic_script_dir: '/opt/restic'
