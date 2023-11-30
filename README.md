@@ -57,7 +57,7 @@ CRON=true /path/to/backup/script/backup-example.sh
 
 There are multiple ways to install the role. Either clone or download it directly from the [github repository](https://github.com/roles-ansible/ansible_role_restic.git). Or Install it via [ansible galaxy](https://galaxy.ansible.com/do1jlr/restic):
 ```bash
-ansible-galaxy install do1jlr.restic
+ansible-galaxy install roles-ansible.restic
 ```
 ## Requirements
 * bzip2
