@@ -10,6 +10,6 @@ Type=oneshot
 {% if item.lvm is defined %}
 PrivateMounts=on
 {% endif %}
-ExecStart={{ restic_script_dir }}/backup-{{ item.name }}.sh
+ExecStart=/usr/bin/nice {{ restic_script_dir }}/backup-{{ item.name }}.sh
 TimeoutStartSec=0
 Environment="CRON=true"
