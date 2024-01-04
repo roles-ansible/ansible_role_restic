@@ -157,6 +157,7 @@ Available variables:
 | `stdin`            |              no               | Is this backup created from a [stdin](https://restic.readthedocs.io/en/stable/040_backup.html#reading-data-from-stdin)? |
 | `stdin_cmd`        | no (yes if `stdin` == `true`) | The command to produce the stdin. |
 | `stdin_filename`   |              no               | The filename used in the repository. |
+| `pre_backup_cmd`   |              no               | A command to run before backup, typically used to dump databases to disk |
 | `tags`             |              no               | Array of default tags  |
 | `keep_last`        |              no               | If set, only keeps the last n snapshots.  |
 | `keep_hourly`      |              no               | If set, only keeps the last n hourly snapshots.                                                                                                                              |
@@ -197,6 +198,13 @@ restic_backups:
     stdin_filename: db_name_dump.sql
     scheduled: true
     schedule_oncalendar: '*-*-* 01:30:00'
+  all_databases:
+    name: all_databases
+    repo: remote
+    src: /var/dumped_data
+    scheduled: true
+    schedule_oncalendar: '*-*-* 02:00:00'
+    pre_backup_cmd: cd /var/dumped_data && mariadb -N -e 'show databases' | while read dbname; do mariadb-dump --complete-insert --routines --triggers --single-transaction "$dbname" > "$dbname".sql; done
 ```
 
 > You can also specify restic_backups as an array, which is a legacy feature and
