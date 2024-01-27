@@ -7,6 +7,11 @@ After=fstrim.timer
 
 [Service]
 Type=oneshot
+{% if item.service_options is defined %}
+{% for key, value in item.service_options.items() %}
+{{key}}={{value}}
+{% endfor %}
+{% endif %}
 {% if item.lvm is defined %}
 PrivateMounts=on
 {% endif %}

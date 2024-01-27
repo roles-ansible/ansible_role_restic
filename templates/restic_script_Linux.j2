@@ -79,10 +79,10 @@ export B2_ACCOUNT_ID={{ restic_repos[item.repo].b2_account_id }}
 export B2_ACCOUNT_KEY={{ restic_repos[item.repo].b2_account_key }}
 {% endif %}
 {% if item.src is defined  and item.src is string %}
-BACKUP_SOURCE={{ item.src }}
+BACKUP_SOURCE="{{ item.src }}"
 {% endif %}
 {% if item.src is defined  and item.src.__class__.__name__ =='list' %}
-BACKUP_SOURCE={{ item.src| join(' ') }}
+BACKUP_SOURCE="{{ item.src| join(' ') }}"
 {% endif %}
 
 {% if item.lvm is defined %}
@@ -203,9 +203,11 @@ set -uxo pipefail
 {%- endmacro %}
 
 {% macro options(options) %}
-  {% for option in options %}
-    {{ option }} \
-  {% endfor %}
+  {% if options is defined %}
+    {% for option in options %}
+      {{ option }} \
+    {% endfor %}
+  {% endif %}
 {% endmacro %}
 
 {% macro exclude(exclude) %}
@@ -290,7 +292,7 @@ case $? in
     *)
         echo "$(date -u '+%Y-%m-%d %H:%M:%S') ERROR" {{ backup_result_log }}
     {% if item.mail_on_error is defined and item.mail_on_error == true %}
-    mail -s "restic backup failed on {{ ansible_hostname }}" {{ item.mail_address }}  <<< "Something went wrong while running restic backup script running at {{ ansible_hostname }} at $(date -u '+%Y-%m-%d %H:%M:%S').
+    mail -s "restic backup failed on {{ ansible_hostname }}" {{ item.mail_address }}  <<< "Something went wrong in backups while running restic backup script running at {{ ansible_hostname }} at $(date -u '+%Y-%m-%d %H:%M:%S').
       {%- if item.src is defined -%}
         {{ ' ' }}We tried to backup '{{ item.src }}'.
       {%- endif -%}
@@ -306,6 +308,7 @@ esac
 {#
   Define stdin forget commands
 #}
+{% if item.forget_snapshots is not defined or item.forget_snapshots %}
 {{ restic_install_path }}/restic forget {{ paths(item) }} {{ retention_pattern(item) }} {% if item.prune is defined and item.prune == true %}--prune{% endif %} {{ forget_output_log }}
 if [[ $? -eq 0 ]]
 then
@@ -316,12 +319,14 @@ then
 else
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') ERROR" {{ forget_result_log }}
     {% if item.mail_on_error is defined and item.mail_on_error == true %}
-    mail -s "restic backup failed on {{ ansible_hostname }}" {{ item.mail_address }}  <<< "Something went wrong while running restic backup script running at {{ ansible_hostname }} at $(date -u '+%Y-%m-%d %H:%M:%S').
+    mail -s "restic backup failed on {{ ansible_hostname }}" {{ item.mail_address }}  <<< "Something went wrong in forgetting while running restic backup script running at {{ ansible_hostname }} at $(date -u '+%Y-%m-%d %H:%M:%S').
       {%- if item.src is defined -%}
-        {{ ' ' }}We tried to backup '{{ item.src }}'.
+        {{ ' ' }}We tried to forget '{{ item.src }}'.
       {%- endif -%}
       {{ ' ' }}Please repair the restic-{{ item.name | replace(' ', '') }} job."
     {% endif %}
 fi
+{% endif %}
+
 rm -f $pid # remove pid file just before exiting
 exit

@@ -153,13 +153,14 @@ Available variables:
 | ------------------ |:-----------------------------:| ------------ |
 | `name`             |              yes              | The name of this backup. Used together with pruning and scheduling and needs to be unique. |
 | `repo`             |              yes              | The name of the repository to backup to. |
-| `src`              | yes (unless `stdin` == `true`) | The source directory or file |
-| `stdin`            |              no               | Is this backup created from a [stdin](https://restic.readthedocs.io/en/stable/040_backup.html#reading-data-from-stdin)? |
+| `src`              |         no (see Note)         | The source directory or file |
+| `stdin`            |         no (see Note)         | Is this backup created from a [stdin](https://restic.readthedocs.io/en/stable/040_backup.html#reading-data-from-stdin)? |
 | `stdin_cmd`        | no (yes if `stdin` == `true`) | The command to produce the stdin. |
 | `stdin_filename`   |              no               | The filename used in the repository. |
 | `pre_backup_cmd`   |              no               | A command to run before backup, typically used to dump databases to disk |
 | `tags`             |              no               | Array of default tags  |
-| `options`          |              no               | Array of additional options to restic backup  |
+| `options`          |         no (see Note)         | Array of additional options to restic backup  |
+| `forget_snapshots` |              no               | If set to false, do not forget snapshots with each run (
 | `keep_last`        |              no               | If set, only keeps the last n snapshots.  |
 | `keep_hourly`      |              no               | If set, only keeps the last n hourly snapshots.                                                                                                                              |
 | `keep_daily`       |              no               | If set, only keeps the last n daily snapshots.                                                                                                                               |
@@ -182,6 +183,8 @@ Available variables:
 | `mail_address`     |  if `mail_on_error` is true   | The mail address to receive mails if you enabled ``mail_on_error``. |
 | `monitoring_call`  |           no                  | A command that will be called if the backup is *successful*. Useful for heartbeat monitoring systems that warn when no heartbeat is received. Use the full command, you need to run. Example: `curl https://monitoring.example.com/api/push/E9Wzm4lJ2O?status=up&msg=OK&ping=` |
 | `niceness`         |           no                  | If set, runs any scheduled backup with given [niceness-value](https://en.wikipedia.org/wiki/Nice_(Unix)). On Linux -20 is highest priority, 0 default and 19 is lowest priority. 10 is a common low priority assigned to backup routines on production systems. |
+
+Note: One of src or stdin_cmd must be defined; or one of --files-from, --files-from-verbatim, or --files-from-raw must be provided in options.
 
 Example:
 ```yaml
@@ -208,7 +211,14 @@ restic_backups:
     scheduled: true
     schedule_oncalendar: '*-*-* 02:00:00'
     pre_backup_cmd: cd /var/dumped_data && mariadb -N -e 'show databases' | while read dbname; do mariadb-dump --complete-insert --routines --triggers --single-transaction "$dbname" > "$dbname".sql; done
-
+  specified_files:
+    name: specified_files
+    repo: remote
+    options:
+      - --files-from
+      - /etc/restic-specified-files.txt
+    scheduled: true
+    schedule_oncalendar: '*-*-* 03:00:00'
 ```
 
 > You can also specify restic_backups as an array, which is a legacy feature and
