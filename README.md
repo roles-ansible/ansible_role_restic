@@ -14,12 +14,12 @@ backups.
 
 This role installs restic on a client, configures the backup repositories
 and optionally sets systemd timer or cronjobs to run the backups.
-Aditionally, it will setup executable scripts to run a Backup manually.
+Additionally, it will set up executable scripts to run a Backup manually.
 
 > This Project borrowed heavily from the
 > [donat-b/ansible-restic](https://github.com/donat-b/ansible-restic) and
 > the [https://github.com/arillso/ansible.restic](https://github.com/arillso/ansible.restic)
-> ansible role. We try to make this role more easy to anderstand and modern by using systemd timer,
+> ansible role. We try to make this role easier to understand and more modern by using systemd timer,
 > /etc/crontab to define backup paths, more absolute paths and less options. (no S3 Storage, No Windows...)
 
 ### Backup Scripts
@@ -144,7 +144,7 @@ restic_repos:
 ```
 
 ### Backups
-A backup specifies a directory or file to be backuped. A backup is written to a
+A backup specifies a directory or file to be backed up. A backup is written to a
 Repository defined in `restic_repos`.
 
 Available variables:
@@ -159,6 +159,7 @@ Available variables:
 | `stdin_filename`   |              no               | The filename used in the repository. |
 | `pre_backup_cmd`   |              no               | A command to run before backup, typically used to dump databases to disk |
 | `tags`             |              no               | Array of default tags  |
+| `options`          |              no               | Array of additional options to restic backup  |
 | `keep_last`        |              no               | If set, only keeps the last n snapshots.  |
 | `keep_hourly`      |              no               | If set, only keeps the last n hourly snapshots.                                                                                                                              |
 | `keep_daily`       |              no               | If set, only keeps the last n daily snapshots.                                                                                                                               |
@@ -178,7 +179,7 @@ Available variables:
 | `disable_logging`  |           no                  | Optionally disable logging  |
 | `log_to_journald`  |           no                  | Optionally switch logging to journald with the name of the backup job as the tag |
 | `mail_on_error`    |           no                  | Optionally send a mail if the backupjob will fail *(mailx is required)* |
-| `mail_address`     |  if `mail_on_error` is true   | The mail addressto recive mails if you enabled ``mail_on_error``. |
+| `mail_address`     |  if `mail_on_error` is true   | The mail address to receive mails if you enabled ``mail_on_error``. |
 | `monitoring_call`  |           no                  | A command that will be called if the backup is *successful*. Useful for heartbeat monitoring systems that warn when no heartbeat is received. Use the full command, you need to run. Example: `curl https://monitoring.example.com/api/push/E9Wzm4lJ2O?status=up&msg=OK&ping=` |
 | `niceness`         |           no                  | If set, runs any scheduled backup with given [niceness-value](https://en.wikipedia.org/wiki/Nice_(Unix)). On Linux -20 is highest priority, 0 default and 19 is lowest priority. 10 is a common low priority assigned to backup routines on production systems. |
 
@@ -212,7 +213,7 @@ restic_backups:
 
 > You can also specify restic_backups as an array, which is a legacy feature and
 > might be deprecated in the future. currently, the name key is used for
-> namint the access and backup files
+> naming the access and backup files
 
 #### Exclude
 the `exclude` key on a backup allows you to specify multiple files to exclude or
@@ -233,12 +234,12 @@ Please refer to the use of the specific keys to the
 [documentation](https://restic.readthedocs.io/en/latest/040_backup.html#excluding-files).
 
 ## Dependencies
-This role does not have any other ansible role as dependencie.
+This role does not have any other ansible roles as dependencies.
 
 ## Example Playbook
 
 ```yml
-- name: backup your homefolders to /mnt/backup everyday night
+- name: backup your home folders to /mnt/backup everyday night
   hosts: localhost
   roles:
     - {role: do1jlr.restic, tags: restic}

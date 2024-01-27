@@ -202,6 +202,12 @@ set -uxo pipefail
   {% if repo.keep_tag is defined and (repo.keep_tag|length>0) %}{{ keep_tags(repo.keep_tag) }}{% endif %}
 {%- endmacro %}
 
+{% macro options(options) %}
+  {% for option in options %}
+    {{ option }} \
+  {% endfor %}
+{% endmacro %}
+
 {% macro exclude(exclude) %}
     {% if exclude.exclude_caches is defined and exclude.exclude_caches == true %}
         --exclude-caches \
@@ -268,6 +274,7 @@ fi
   {% if item.lvm is defined %}prepare_vol $BACKUP_SOURCE &&{% endif %}
   {{ restic_install_path }}/restic backup {% if item.lvm is defined and item.src == '/' %}/rootfs{% endif %}$BACKUP_SOURCE $MODE_TAG \
     {{ tags(item.tags) }} \
+    {% if item.options is defined %}{{ options(item.options) }}{% endif %} \
     {% if item.exclude is defined %}{{ exclude(item.exclude) }}{% endif %} \
     $@
 } \
