@@ -157,7 +157,7 @@ Available variables:
 | `stdin`            |         no [see Note]         | Is this backup created from a [stdin](https://restic.readthedocs.io/en/stable/040_backup.html#reading-data-from-stdin)? |
 | `stdin_cmd`        | no (yes if `stdin` == `true`) | The command to produce the stdin. |
 | `stdin_filename`   |              no               | The filename used in the repository. |
-| `include`          |     no (`{}`) [see Note]      | If set, used to specify --files-from, --files-from-verbatim, and/or --files-from-raw. |
+| `include`          |     no (`{}`) [see Note]      | If set, used to specify --files-from, --files-from-verbatim, and/or --files-from-raw. See [Include](#include) for reference. |
 | `exclude`          |           no (`{}`)           | Allows you to specify files to exclude. See [Exclude](#exclude) for reference. |
 | `pre_backup_cmd`   |              no               | A command to run before backup, typically used to dump databases to disk |
 | `tags`             |              no               | Array of default tags  |
@@ -214,9 +214,11 @@ restic_backups:
   specified_files:
     name: specified_files
     repo: remote
+    include:
+      files_from:
+        - /etc/restic-specified-files.txt
     options:
-      - --files-from
-      - /etc/restic-specified-files.txt
+      - --compression off
     scheduled: true
     schedule_oncalendar: '*-*-* 03:00:00'
 ```
@@ -242,6 +244,21 @@ exclude:
 ```
 Please refer to the use of the specific keys to the
 [documentation](https://restic.readthedocs.io/en/latest/040_backup.html#excluding-files).
+
+#### Include
+the `include` key on a backup allows you to specify multiple files containing lists of
+files to include. You can specify the following keys:
+```yaml
+include:
+    files_from:
+        - /path/to/file
+    files_from_verbatim:
+        - /path/to/file
+    files_from_raw:
+        - /path/to/file
+```
+Please refer to the use of the specific keys to the
+[documentation](https://restic.readthedocs.io/en/latest/040_backup.html#including-files).
 
 ## Dependencies
 This role does not have any other ansible roles as dependencies.
