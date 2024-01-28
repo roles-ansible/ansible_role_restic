@@ -153,14 +153,15 @@ Available variables:
 | ------------------ |:-----------------------------:| ------------ |
 | `name`             |              yes              | The name of this backup. Used together with pruning and scheduling and needs to be unique. |
 | `repo`             |              yes              | The name of the repository to backup to. |
-| `src`              |         no (see Note)         | The source directory or file |
-| `stdin`            |         no (see Note)         | Is this backup created from a [stdin](https://restic.readthedocs.io/en/stable/040_backup.html#reading-data-from-stdin)? |
+| `src`              |         no [see Note]         | The source directory or file |
+| `stdin`            |         no [see Note]         | Is this backup created from a [stdin](https://restic.readthedocs.io/en/stable/040_backup.html#reading-data-from-stdin)? |
 | `stdin_cmd`        | no (yes if `stdin` == `true`) | The command to produce the stdin. |
 | `stdin_filename`   |              no               | The filename used in the repository. |
+| `include`          |     no (`{}`) [see Note]      | If set, used to specify --files-from, --files-from-verbatim, and/or --files-from-raw. |
+| `exclude`          |           no (`{}`)           | Allows you to specify files to exclude. See [Exclude](#exclude) for reference. |
 | `pre_backup_cmd`   |              no               | A command to run before backup, typically used to dump databases to disk |
 | `tags`             |              no               | Array of default tags  |
-| `options`          |         no (see Note)         | Array of additional options to restic backup  |
-| `forget_snapshots` |              no               | If set to false, do not forget snapshots with each run (
+| `options`          |              no               | Array of additional options to restic backup  |
 | `keep_last`        |              no               | If set, only keeps the last n snapshots.  |
 | `keep_hourly`      |              no               | If set, only keeps the last n hourly snapshots.                                                                                                                              |
 | `keep_daily`       |              no               | If set, only keeps the last n daily snapshots.                                                                                                                               |
@@ -168,7 +169,7 @@ Available variables:
 | `keep_monthly`     |              no               | If set, only keeps the last n monthly snapshots.                                                                                                                             |
 | `keep_yearly `     |              no               | If set, only keeps the last n yearly snapshots.                                                                                                                              |
 | `keep_within`      |              no               | If set, only keeps snapshots in this time period.                                                                                                                            |
-| `keep_tag`         |              no               | If set, keep snapshots with this tags. Make sure to specify a list.                                                                                                          |
+| `keep_tag`         |              no               | If set, keep snapshots with these tags. Make sure to specify a list.                                                                                                          |
 | `prune`            |         no (`false`)          | If `true`, the `restic forget` command in the script has the [`--prune` option](https://restic.readthedocs.io/en/stable/060_forget.html#removing-backup-snapshots) appended. |
 | `scheduled`        |         no (`false`)          | If `restic_create_schedule` is set to `true`, this backup is scheduled and tries to create a systemd timer unit. If it fails, it is creating a cronjob. |
 | `schedule_oncalendar` |  ``'*-*-* 02:00:00'``      | The time for the systemd timer. Please notice the randomDelaySec option. By Default the backup is done every night at 2 am (+0-4h). But only if scheduled is true.  |
@@ -176,7 +177,6 @@ Available variables:
 | `schedule_hour`    |           no (`2`)            | Hour when the job is run. ( 0-23, *, */2, etc )  |
 | `schedule_weekday` |           no (`*`)            | Weekday when the job is run.  ( 0-6 for Sunday-Saturday, *, etc ) |
 | `schedule_month`   |           no (`*`)            | Month when the job is run. ( 1-12, *, */2, etc )  |
-| `exclude`          |           no (`{}`)           | Allows you to specify files to exclude. See [Exclude](#exclude) for reference. |
 | `disable_logging`  |           no                  | Optionally disable logging  |
 | `log_to_journald`  |           no                  | Optionally switch logging to journald with the name of the backup job as the tag |
 | `mail_on_error`    |           no                  | Optionally send a mail if the backupjob will fail *(mailx is required)* |
@@ -184,7 +184,7 @@ Available variables:
 | `monitoring_call`  |           no                  | A command that will be called if the backup is *successful*. Useful for heartbeat monitoring systems that warn when no heartbeat is received. Use the full command, you need to run. Example: `curl https://monitoring.example.com/api/push/E9Wzm4lJ2O?status=up&msg=OK&ping=` |
 | `niceness`         |           no                  | If set, runs any scheduled backup with given [niceness-value](https://en.wikipedia.org/wiki/Nice_(Unix)). On Linux -20 is highest priority, 0 default and 19 is lowest priority. 10 is a common low priority assigned to backup routines on production systems. |
 
-Note: One of src or stdin_cmd must be defined; or one of --files-from, --files-from-verbatim, or --files-from-raw must be provided in options.
+Note: One of src, stdin_cmd, or include must be defined. If include is used, you are responsible for providing one or more of of files_from, files_rom_verbatim, or files_from_raw.
 
 Example:
 ```yaml

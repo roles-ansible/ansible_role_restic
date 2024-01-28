@@ -186,20 +186,20 @@ set -uxo pipefail
   Define paths
 #}
 {% macro paths(repo) -%}
-{% if repo.src is defined and repo.src != None and (repo.src is not string)  %}{%for path in repo.src %} --path {{ path }}{% endfor %}{%elif repo.src is string %}--path {{repo.src}} {% else %} --path {{ repo.stdin_filename }}{% endif %}
+{% if repo.src is defined and repo.src != None and (repo.src is not string)  %}{%for path in repo.src %} --path {{ path }}{% endfor %}{%elif repo.src is string %}--path {{repo.src}} {% elif repo.stdin_filename is defined %} --path {{ repo.stdin_filename }}{% endif %}
 {%- endmacro %}
 {#
-  Define retention pattern
+  Define retention pattern (if non-empty, `restic forget` will run)
 #}
 {% macro retention_pattern(repo) -%}
-  {% if repo.keep_last is defined and repo.keep_last != None %}--keep-last {{ item.keep_last }}{% endif %} \
-  {% if repo.keep_hourly is defined and repo.keep_hourly != None %}--keep-hourly {{ item.keep_hourly }}{% endif %} \
-  {% if repo.keep_daily is defined and repo.keep_daily != None %}--keep-daily {{ item.keep_daily }}{% endif %} \
-  {% if repo.keep_weekly is defined and repo.keep_weekly != None %}--keep-weekly {{ item.keep_weekly }}{% endif %} \
-  {% if repo.keep_monthly is defined and repo.keep_monthly != None %}--keep-monthly {{ item.keep_monthly }}{% endif %} \
-  {% if repo.keep_yearly is defined and repo.keep_yearly != None %}--keep-yearly {{ item.keep_yearly }}{% endif %} \
-  {% if repo.keep_within is defined and repo.keep_within != None %}--keep-within {{ item.keep_within }}{% endif %} \
-  {% if repo.keep_tag is defined and (repo.keep_tag|length>0) %}{{ keep_tags(repo.keep_tag) }}{% endif %}
+{% if repo.keep_last is defined and repo.keep_last != None %}--keep-last {{ item.keep_last }} {% endif %}
+{% if repo.keep_hourly is defined and repo.keep_hourly != None %}--keep-hourly {{ item.keep_hourly }} {% endif %}
+{% if repo.keep_daily is defined and repo.keep_daily != None %}--keep-daily {{ item.keep_daily }} {% endif %}
+{% if repo.keep_weekly is defined and repo.keep_weekly != None %}--keep-weekly {{ item.keep_weekly }} {% endif %}
+{% if repo.keep_monthly is defined and repo.keep_monthly != None %}--keep-monthly {{ item.keep_monthly }} {% endif %}
+{% if repo.keep_yearly is defined and repo.keep_yearly != None %}--keep-yearly {{ item.keep_yearly }} {% endif %}
+{% if repo.keep_within is defined and repo.keep_within != None %}--keep-within {{ item.keep_within }} {% endif %}
+{% if repo.keep_tag is defined and (repo.keep_tag|length>0) %}{{ keep_tags(repo.keep_tag) }} {% endif %}
 {%- endmacro %}
 
 {% macro options(options) %}
@@ -236,6 +236,23 @@ set -uxo pipefail
     {% endif %}
 {% endmacro %}
 
+{% macro include(include) %}
+    {% if include.files_from is defined %}
+        {% for path in include.files_from %}
+            --files-from {{ path }} \
+        {% endfor %}
+    {% endif %}
+    {% if include.files_from_verbatim is defined %}
+        {% for path in include.files_from_verbatim %}
+            --files-from-verbatim {{ path }} \
+        {% endfor %}
+    {% endif %}
+    {% if include.files_from_raw is defined %}
+        {% for path in include.files_from_raw %}
+            --files-from-raw {{ path }} \
+        {% endfor %}
+    {% endif %}
+{% endmacro %}
 
 {% if item.pre_backup_cmd is defined %}
   {{ item.pre_backup_cmd }} {{ pre_backup_cmd_output_log }}
@@ -278,6 +295,7 @@ fi
     {{ tags(item.tags) }} \
     {% if item.options is defined %}{{ options(item.options) }}{% endif %} \
     {% if item.exclude is defined %}{{ exclude(item.exclude) }}{% endif %} \
+    {% if item.include is defined %}{{ include(item.include) }}{% endif %} \
     $@
 } \
 {% endif %} {{ backup_output_log }}
@@ -308,7 +326,7 @@ esac
 {#
   Define stdin forget commands
 #}
-{% if item.forget_snapshots is not defined or item.forget_snapshots %}
+{% if retention_pattern(item) %}
 {{ restic_install_path }}/restic forget {{ paths(item) }} {{ retention_pattern(item) }} {% if item.prune is defined and item.prune == true %}--prune{% endif %} {{ forget_output_log }}
 if [[ $? -eq 0 ]]
 then
