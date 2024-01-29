@@ -78,12 +78,7 @@ export B2_ACCOUNT_ID={{ restic_repos[item.repo].b2_account_id }}
 {% if restic_repos[item.repo].b2_account_key is defined %}
 export B2_ACCOUNT_KEY={{ restic_repos[item.repo].b2_account_key }}
 {% endif %}
-{% if item.src is defined  and item.src is string %}
-BACKUP_SOURCE="{{ item.src }}"
-{% endif %}
-{% if item.src is defined  and item.src.__class__.__name__ =='list' %}
-BACKUP_SOURCE="{{ item.src| join(' ') }}"
-{% endif %}
+BACKUP_SOURCE="{% if item.src is defined %}{% if item.src is string %}{{ item.src }}{% elif item.src.__class__.__name__ =='list' %}{{ item.src| join(' ') }}{% endif %}{% endif %}"
 
 {% if item.lvm is defined %}
 # Set up functions for LVM.
