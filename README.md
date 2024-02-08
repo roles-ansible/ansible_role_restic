@@ -72,6 +72,7 @@ ansible-galaxy install roles-ansible.restic
 | `restic_download_path`        | `'/opt/restic'`                 | Download location for the restic binary                                                                                                              |
 | `restic_install_path`         | `'/usr/local/bin'`              | Install location for the restic binary                                                                                                               |
 | `restic_script_dir`           | `'/opt/restic'`                 | Location of the generated backup scripts                                                                                                             |
+| `restic_backup_script_shell`  | `sh`                            | Shell to use for run of backup script                                                                                                             |
 | `restic_log_dir`              | `'{{ restic_script_dir }}/log'` | Location of the logs of the backup scripts                                                                                                           |
 | `restic_repos`                | `{}`                            | A dictionary of repositories where snapshots are stored. *(More Info: [Repos](#Repos))*                                                              |
 | `restic_backups`              | `{}` (or `[]`)                  | A list of dictionaries specifying the files and directories to be backed up *(More Infos: [Backups](#Backups))*                                      |
