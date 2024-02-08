@@ -4,6 +4,7 @@ restic_version: '0.16.3'
 restic_download_path: '/opt/restic'
 restic_install_path: '/usr/local/bin'
 restic_script_dir: '/opt/restic'
+restic_backup_script_shell: sh
 restic_log_dir: '{{ restic_script_dir }}/log'
 restic_repos: {}
 restic_backups: []
