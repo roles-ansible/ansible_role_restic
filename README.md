@@ -113,6 +113,10 @@ Example:
 restic_repos:
   local:
     location: /srv/restic-repo
+    password: securepassword0
+    init: true
+  remote:
+    location: rest:https://restic_rest_server.example.com:8000/restic-repo/
     password: securepassword1
     init: true
   sftp:
