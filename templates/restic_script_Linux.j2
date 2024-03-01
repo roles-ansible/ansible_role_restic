@@ -78,12 +78,7 @@ export B2_ACCOUNT_ID={{ restic_repos[item.repo].b2_account_id }}
 {% if restic_repos[item.repo].b2_account_key is defined %}
 export B2_ACCOUNT_KEY={{ restic_repos[item.repo].b2_account_key }}
 {% endif %}
-{% if item.src is defined  and item.src is string %}
-BACKUP_SOURCE={{ item.src }}
-{% endif %}
-{% if item.src is defined  and item.src.__class__.__name__ =='list' %}
-BACKUP_SOURCE={{ item.src| join(' ') }}
-{% endif %}
+BACKUP_SOURCE="{% if item.src is defined %}{% if item.src is string %}{{ item.src }}{% elif item.src.__class__.__name__ =='list' %}{{ item.src| join(' ') }}{% endif %}{% endif %}"
 
 {% if item.lvm is defined %}
 # Set up functions for LVM.
@@ -186,21 +181,29 @@ set -uxo pipefail
   Define paths
 #}
 {% macro paths(repo) -%}
-{% if repo.src is defined and repo.src != None and (repo.src is not string)  %}{%for path in repo.src %} --path {{ path }}{% endfor %}{%elif repo.src is string %}--path {{repo.src}} {% else %} --path {{ repo.stdin_filename }}{% endif %}
+{% if repo.src is defined and repo.src != None and (repo.src is not string)  %}{%for path in repo.src %} --path {{ path }}{% endfor %}{%elif repo.src is string %}--path {{repo.src}} {% elif repo.stdin_filename is defined %} --path {{ repo.stdin_filename }}{% endif %}
 {%- endmacro %}
 {#
-  Define retention pattern
+  Define retention pattern (if non-empty, `restic forget` will run)
 #}
 {% macro retention_pattern(repo) -%}
-  {% if repo.keep_last is defined and repo.keep_last != None %}--keep-last {{ item.keep_last }}{% endif %} \
-  {% if repo.keep_hourly is defined and repo.keep_hourly != None %}--keep-hourly {{ item.keep_hourly }}{% endif %} \
-  {% if repo.keep_daily is defined and repo.keep_daily != None %}--keep-daily {{ item.keep_daily }}{% endif %} \
-  {% if repo.keep_weekly is defined and repo.keep_weekly != None %}--keep-weekly {{ item.keep_weekly }}{% endif %} \
-  {% if repo.keep_monthly is defined and repo.keep_monthly != None %}--keep-monthly {{ item.keep_monthly }}{% endif %} \
-  {% if repo.keep_yearly is defined and repo.keep_yearly != None %}--keep-yearly {{ item.keep_yearly }}{% endif %} \
-  {% if repo.keep_within is defined and repo.keep_within != None %}--keep-within {{ item.keep_within }}{% endif %} \
-  {% if repo.keep_tag is defined and (repo.keep_tag|length>0) %}{{ keep_tags(repo.keep_tag) }}{% endif %}
+{% if repo.keep_last is defined and repo.keep_last != None %}--keep-last {{ item.keep_last }} {% endif %}
+{% if repo.keep_hourly is defined and repo.keep_hourly != None %}--keep-hourly {{ item.keep_hourly }} {% endif %}
+{% if repo.keep_daily is defined and repo.keep_daily != None %}--keep-daily {{ item.keep_daily }} {% endif %}
+{% if repo.keep_weekly is defined and repo.keep_weekly != None %}--keep-weekly {{ item.keep_weekly }} {% endif %}
+{% if repo.keep_monthly is defined and repo.keep_monthly != None %}--keep-monthly {{ item.keep_monthly }} {% endif %}
+{% if repo.keep_yearly is defined and repo.keep_yearly != None %}--keep-yearly {{ item.keep_yearly }} {% endif %}
+{% if repo.keep_within is defined and repo.keep_within != None %}--keep-within {{ item.keep_within }} {% endif %}
+{% if repo.keep_tag is defined and (repo.keep_tag|length>0) %}{{ keep_tags(repo.keep_tag) }} {% endif %}
 {%- endmacro %}
+
+{% macro options(options) %}
+  {% if options is defined %}
+    {% for option in options %}
+      {{ option }} \
+    {% endfor %}
+  {% endif %}
+{% endmacro %}
 
 {% macro exclude(exclude) %}
     {% if exclude.exclude_caches is defined and exclude.exclude_caches == true %}
@@ -228,6 +231,23 @@ set -uxo pipefail
     {% endif %}
 {% endmacro %}
 
+{% macro include(include) %}
+    {% if include.files_from is defined %}
+        {% for path in include.files_from %}
+            --files-from {{ path }} \
+        {% endfor %}
+    {% endif %}
+    {% if include.files_from_verbatim is defined %}
+        {% for path in include.files_from_verbatim %}
+            --files-from-verbatim {{ path }} \
+        {% endfor %}
+    {% endif %}
+    {% if include.files_from_raw is defined %}
+        {% for path in include.files_from_raw %}
+            --files-from-raw {{ path }} \
+        {% endfor %}
+    {% endif %}
+{% endmacro %}
 
 {% if item.pre_backup_cmd is defined %}
   {{ item.pre_backup_cmd }} {{ pre_backup_cmd_output_log }}
@@ -268,7 +288,9 @@ fi
   {% if item.lvm is defined %}prepare_vol $BACKUP_SOURCE &&{% endif %}
   {{ restic_install_path }}/restic backup {% if item.lvm is defined and item.src == '/' %}/rootfs{% endif %}$BACKUP_SOURCE $MODE_TAG \
     {{ tags(item.tags) }} \
+    {% if item.options is defined %}{{ options(item.options) }}{% endif %} \
     {% if item.exclude is defined %}{{ exclude(item.exclude) }}{% endif %} \
+    {% if item.include is defined %}{{ include(item.include) }}{% endif %} \
     $@
 } \
 {% endif %} {{ backup_output_log }}
@@ -283,7 +305,7 @@ case $? in
     *)
         echo "$(date -u '+%Y-%m-%d %H:%M:%S') ERROR" {{ backup_result_log }}
     {% if item.mail_on_error is defined and item.mail_on_error == true %}
-    mail -s "restic backup failed on {{ ansible_hostname }}" {{ item.mail_address }}  <<< "Something went wrong while running restic backup script running at {{ ansible_hostname }} at $(date -u '+%Y-%m-%d %H:%M:%S').
+    mail -s "restic backup failed on {{ ansible_hostname }}" {{ item.mail_address }}  <<< "Something went wrong in backups while running restic backup script running at {{ ansible_hostname }} at $(date -u '+%Y-%m-%d %H:%M:%S').
       {%- if item.src is defined -%}
         {{ ' ' }}We tried to backup '{{ item.src }}'.
       {%- endif -%}
@@ -299,6 +321,7 @@ esac
 {#
   Define stdin forget commands
 #}
+{% if retention_pattern(item) %}
 {{ restic_install_path }}/restic forget {{ paths(item) }} {{ retention_pattern(item) }} {% if item.prune is defined and item.prune == true %}--prune{% endif %} {{ forget_output_log }}
 if [[ $? -eq 0 ]]
 then
@@ -309,12 +332,14 @@ then
 else
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') ERROR" {{ forget_result_log }}
     {% if item.mail_on_error is defined and item.mail_on_error == true %}
-    mail -s "restic backup failed on {{ ansible_hostname }}" {{ item.mail_address }}  <<< "Something went wrong while running restic backup script running at {{ ansible_hostname }} at $(date -u '+%Y-%m-%d %H:%M:%S').
+    mail -s "restic backup failed on {{ ansible_hostname }}" {{ item.mail_address }}  <<< "Something went wrong in forgetting while running restic backup script running at {{ ansible_hostname }} at $(date -u '+%Y-%m-%d %H:%M:%S').
       {%- if item.src is defined -%}
-        {{ ' ' }}We tried to backup '{{ item.src }}'.
+        {{ ' ' }}We tried to forget '{{ item.src }}'.
       {%- endif -%}
       {{ ' ' }}Please repair the restic-{{ item.name | replace(' ', '') }} job."
     {% endif %}
 fi
+{% endif %}
+
 rm -f $pid # remove pid file just before exiting
 exit

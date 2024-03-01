@@ -14,12 +14,12 @@ backups.
 
 This role installs restic on a client, configures the backup repositories
 and optionally sets systemd timer or cronjobs to run the backups.
-Aditionally, it will setup executable scripts to run a Backup manually.
+Additionally, it will set up executable scripts to run a Backup manually.
 
 > This Project borrowed heavily from the
 > [donat-b/ansible-restic](https://github.com/donat-b/ansible-restic) and
 > the [https://github.com/arillso/ansible.restic](https://github.com/arillso/ansible.restic)
-> ansible role. We try to make this role more easy to anderstand and modern by using systemd timer,
+> ansible role. We try to make this role easier to understand and more modern by using systemd timer,
 > /etc/crontab to define backup paths, more absolute paths and less options. (no S3 Storage, No Windows...)
 
 ### Backup Scripts
@@ -149,7 +149,7 @@ restic_repos:
 ```
 
 ### Backups
-A backup specifies a directory or file to be backuped. A backup is written to a
+A backup specifies a directory or file to be backed up. A backup is written to a
 Repository defined in `restic_repos`.
 
 Available variables:
@@ -158,12 +158,15 @@ Available variables:
 | ------------------ |:-----------------------------:| ------------ |
 | `name`             |              yes              | The name of this backup. Used together with pruning and scheduling and needs to be unique. |
 | `repo`             |              yes              | The name of the repository to backup to. |
-| `src`              | yes (unless `stdin` == `true`) | The source directory or file |
-| `stdin`            |              no               | Is this backup created from a [stdin](https://restic.readthedocs.io/en/stable/040_backup.html#reading-data-from-stdin)? |
+| `src`              |         no [see Note]         | The source directory or file |
+| `stdin`            |         no [see Note]         | Is this backup created from a [stdin](https://restic.readthedocs.io/en/stable/040_backup.html#reading-data-from-stdin)? |
 | `stdin_cmd`        | no (yes if `stdin` == `true`) | The command to produce the stdin. |
 | `stdin_filename`   |              no               | The filename used in the repository. |
+| `include`          |     no (`{}`) [see Note]      | If set, used to specify --files-from, --files-from-verbatim, and/or --files-from-raw. See [Include](#include) for reference. |
+| `exclude`          |           no (`{}`)           | Allows you to specify files to exclude. See [Exclude](#exclude) for reference. |
 | `pre_backup_cmd`   |              no               | A command to run before backup, typically used to dump databases to disk |
 | `tags`             |              no               | Array of default tags  |
+| `options`          |              no               | Array of additional options to restic backup  |
 | `keep_last`        |              no               | If set, only keeps the last n snapshots.  |
 | `keep_hourly`      |              no               | If set, only keeps the last n hourly snapshots.                                                                                                                              |
 | `keep_daily`       |              no               | If set, only keeps the last n daily snapshots.                                                                                                                               |
@@ -171,7 +174,7 @@ Available variables:
 | `keep_monthly`     |              no               | If set, only keeps the last n monthly snapshots.                                                                                                                             |
 | `keep_yearly `     |              no               | If set, only keeps the last n yearly snapshots.                                                                                                                              |
 | `keep_within`      |              no               | If set, only keeps snapshots in this time period.                                                                                                                            |
-| `keep_tag`         |              no               | If set, keep snapshots with this tags. Make sure to specify a list.                                                                                                          |
+| `keep_tag`         |              no               | If set, keep snapshots with these tags. Make sure to specify a list.                                                                                                          |
 | `prune`            |         no (`false`)          | If `true`, the `restic forget` command in the script has the [`--prune` option](https://restic.readthedocs.io/en/stable/060_forget.html#removing-backup-snapshots) appended. |
 | `scheduled`        |         no (`false`)          | If `restic_create_schedule` is set to `true`, this backup is scheduled and tries to create a systemd timer unit. If it fails, it is creating a cronjob. |
 | `schedule_oncalendar` |  ``'*-*-* 02:00:00'``      | The time for the systemd timer. Please notice the randomDelaySec option. By Default the backup is done every night at 2 am (+0-4h). But only if scheduled is true.  |
@@ -179,13 +182,14 @@ Available variables:
 | `schedule_hour`    |           no (`2`)            | Hour when the job is run. ( 0-23, *, */2, etc )  |
 | `schedule_weekday` |           no (`*`)            | Weekday when the job is run.  ( 0-6 for Sunday-Saturday, *, etc ) |
 | `schedule_month`   |           no (`*`)            | Month when the job is run. ( 1-12, *, */2, etc )  |
-| `exclude`          |           no (`{}`)           | Allows you to specify files to exclude. See [Exclude](#exclude) for reference. |
 | `disable_logging`  |           no                  | Optionally disable logging  |
 | `log_to_journald`  |           no                  | Optionally switch logging to journald with the name of the backup job as the tag |
 | `mail_on_error`    |           no                  | Optionally send a mail if the backupjob will fail *(mailx is required)* |
-| `mail_address`     |  if `mail_on_error` is true   | The mail addressto recive mails if you enabled ``mail_on_error``. |
+| `mail_address`     |  if `mail_on_error` is true   | The mail address to receive mails if you enabled ``mail_on_error``. |
 | `monitoring_call`  |           no                  | A command that will be called if the backup is *successful*. Useful for heartbeat monitoring systems that warn when no heartbeat is received. Use the full command, you need to run. Example: `curl https://monitoring.example.com/api/push/E9Wzm4lJ2O?status=up&msg=OK&ping=` |
 | `niceness`         |           no                  | If set, runs any scheduled backup with given [niceness-value](https://en.wikipedia.org/wiki/Nice_(Unix)). On Linux -20 is highest priority, 0 default and 19 is lowest priority. 10 is a common low priority assigned to backup routines on production systems. |
+
+Note: One of src, stdin_cmd, or include must be defined. If include is used, you are responsible for providing one or more of of files_from, files_rom_verbatim, or files_from_raw.
 
 Example:
 ```yaml
@@ -212,12 +216,21 @@ restic_backups:
     scheduled: true
     schedule_oncalendar: '*-*-* 02:00:00'
     pre_backup_cmd: cd /var/dumped_data && mariadb -N -e 'show databases' | while read dbname; do mariadb-dump --complete-insert --routines --triggers --single-transaction "$dbname" > "$dbname".sql; done
-
+  specified_files:
+    name: specified_files
+    repo: remote
+    include:
+      files_from:
+        - /etc/restic-specified-files.txt
+    options:
+      - --compression off
+    scheduled: true
+    schedule_oncalendar: '*-*-* 03:00:00'
 ```
 
 > You can also specify restic_backups as an array, which is a legacy feature and
 > might be deprecated in the future. currently, the name key is used for
-> namint the access and backup files
+> naming the access and backup files
 
 #### Exclude
 the `exclude` key on a backup allows you to specify multiple files to exclude or
@@ -237,13 +250,28 @@ exclude:
 Please refer to the use of the specific keys to the
 [documentation](https://restic.readthedocs.io/en/latest/040_backup.html#excluding-files).
 
+#### Include
+the `include` key on a backup allows you to specify multiple files containing lists of
+files to include. You can specify the following keys:
+```yaml
+include:
+    files_from:
+        - /path/to/file
+    files_from_verbatim:
+        - /path/to/file
+    files_from_raw:
+        - /path/to/file
+```
+Please refer to the use of the specific keys to the
+[documentation](https://restic.readthedocs.io/en/latest/040_backup.html#including-files).
+
 ## Dependencies
-This role does not have any other ansible role as dependencie.
+This role does not have any other ansible roles as dependencies.
 
 ## Example Playbook
 
 ```yml
-- name: backup your homefolders to /mnt/backup everyday night
+- name: backup your home folders to /mnt/backup everyday night
   hosts: localhost
   roles:
     - {role: do1jlr.restic, tags: restic}
