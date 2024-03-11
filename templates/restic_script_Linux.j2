@@ -82,7 +82,7 @@ export B2_ACCOUNT_KEY={{ restic_repos[item.repo].b2_account_key }}
 BACKUP_SOURCE={{ item.src }}
 {% endif %}
 {% if item.src is defined  and item.src.__class__.__name__ =='list' %}
-BACKUP_SOURCE={{ item.src| join(' ') }}
+BACKUP_SOURCE='{{ item.src| join(' ') }}'
 {% endif %}
 
 {% if item.lvm is defined %}
