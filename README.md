@@ -60,8 +60,8 @@ There are multiple ways to install the role. Either clone or download it directl
 ansible-galaxy install roles-ansible.restic
 ```
 ## Requirements
+
 * bzip2
-* jmespath
 
 ## Role Variables
 

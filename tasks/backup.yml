@@ -1,7 +1,7 @@
 ---
 - name: (BACKUP) reformat dict if necessary
   ansible.builtin.set_fact:
-    restic_backups: "{{ restic_backups | dict2items | json_query('[*].value') }}"
+    restic_backups: "{{ restic_backups | default([]) | map('extract', restic_backups) | list }}"
   when:
     - restic_backups | type_debug == "dict"
 
