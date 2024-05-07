@@ -20,7 +20,7 @@ Aditionally, it will setup executable scripts to run a Backup manually.
 > [donat-b/ansible-restic](https://github.com/donat-b/ansible-restic) and
 > the [https://github.com/arillso/ansible.restic](https://github.com/arillso/ansible.restic)
 > ansible role. We try to make this role more easy to anderstand and modern by using systemd timer,
-> /etc/crontab to define backup paths, more absolute paths and less options. (no S3 Storage, No Windows...)
+> /etc/crontab to define backup paths, more absolute paths and less options. (not tested for S3 Storage or Windows...)
 
 ### Backup Scripts
 This role will create a backup script and a file with credentials usable with the `source` command on linux for each backup in the `restic_script_dir`.
