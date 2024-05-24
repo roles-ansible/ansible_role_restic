@@ -27,15 +27,18 @@ fi
 {% set pre_backup_cmd_result_log, pre_backup_cmd_output_log = "/dev/null", "/dev/null" %}
 {% set backup_result_log, backup_output_log = "/dev/null", "/dev/null" %}
 {% set forget_result_log, forget_output_log = "/dev/null", "/dev/null" %}
+{% set past_backup_cmd_result_log, past_backup_cmd_output_log = "/dev/null", "/dev/null" %}
 {% else %}
 {% if (item.log_to_journald is defined and item.log_to_journald) %}
 {% set pre_backup_cmd_result_log, pre_backup_cmd_output_log = "| systemd-cat -t " + item.name, "2>&1 | systemd-cat -t " + item.name %}
 {% set backup_result_log, backup_output_log = "| systemd-cat -t " + item.name, "2>&1 | systemd-cat -t " + item.name %}
 {% set forget_result_log, forget_output_log = "| systemd-cat -t " + item.name, "2>&1 | systemd-cat -t " + item.name %}
+{% set past_backup_cmd_result_log, past_backup_cmd_output_log = "| systemd-cat -t " + item.name, "2>&1 | systemd-cat -t " + item.name %}
 {% else %}
 {% set pre_backup_cmd_result_log, pre_backup_cmd_output_log = ">> " + restic_log_dir + "/" + item.name + "-pre_backup_cmd-result.log", "| tee " + restic_log_dir + "/" + item.name + "-pre_backup_cmd-output.log" %}
 {% set backup_result_log, backup_output_log = ">> " + restic_log_dir + "/" + item.name + "-backup-result.log", "| tee " + restic_log_dir + "/" + item.name + "-backup-output.log" %}
 {% set forget_result_log, forget_output_log = ">> " + restic_log_dir + "/" + item.name + "-forget-result.log", "| tee " + restic_log_dir + "/" + item.name + "-forget-output.log" %}
+{% set past_backup_cmd_result_log, past_backup_cmd_output_log = ">> " + restic_log_dir + "/" + item.name + "-past_backup_cmd-result.log", "| tee " + restic_log_dir + "/" + item.name + "-past_backup_cmd-output.log" %}
 {% endif %}
 {% endif %}
 
@@ -316,5 +319,23 @@ else
       {{ ' ' }}Please repair the restic-{{ item.name | replace(' ', '') }} job."
     {% endif %}
 fi
+
+{% if item.past_backup_cmd is defined %}
+  {{ item.past_backup_cmd }} {{ past_backup_cmd_output_log }}
+if [[ $? -eq 0 ]]
+then
+    echo "$(date -u '+%Y-%m-%d %H:%M:%S') OK" {{ past_backup_cmd_result_log }}
+else
+    echo "$(date -u '+%Y-%m-%d %H:%M:%S') ERROR" {{ past_backup_cmd_result_log }}
+    {% if item.mail_on_error is defined and item.mail_on_error == true %}
+    mail -s "restic backup failed on {{ ansible_hostname }}" {{ item.mail_address }}  <<< "Something went wrong while running restic backup script running at {{ ansible_hostname }} at $(date -u '+%Y-%m-%d %H:%M:%S').
+      {%- if item.src is defined -%}
+        {{ ' ' }}We tried to backup '{{ item.src }}'.
+      {%- endif -%}
+      {{ ' ' }}Please repair the restic-{{ item.name | replace(' ', '') }} job."
+    {% endif %}
+fi
+{% endif %}
+
 rm -f $pid # remove pid file just before exiting
 exit
