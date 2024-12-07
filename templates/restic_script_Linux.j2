@@ -302,7 +302,7 @@ esac
 {#
   Define stdin forget commands
 #}
-{{ restic_install_path }}/restic forget {{ paths(item) }} {{ retention_pattern(item) }} {% if item.prune is defined and item.prune == true %}--prune{% endif %} {{ forget_output_log }}
+{{ restic_install_path }}/restic forget {{ paths(item) }} {{ retention_pattern(item) }} {% if item.prune is defined and item.prune == true %}--prune{% endif %} {% if item.forget_extra_args is defined %}{{ item.forget_extra_args }}{% endif %} {{ forget_output_log }}
 if [[ $? -eq 0 ]]
 then
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') OK" {{ forget_result_log }}
