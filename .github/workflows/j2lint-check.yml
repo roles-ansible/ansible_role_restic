@@ -1,21 +1,22 @@
 ---
-name: Ansible Lint check
+name: Jinja2 Linting check
 
 # yamllint disable-line rule:truthy
 on: [push, pull_request]
 
 jobs:
   build:
-    name: Ansible Lint
+    name: Jinja2 Linting
     runs-on: ubuntu-latest
 
     steps:
       - name: 'checkout git repo'
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4
         with:
+          submodules: true
           fetch-depth: 0
 
-      - name: Run ansible-lint
-        uses: ansible-actions/ansible-lint-action@v1.0.3
+      - name: Run j2lint
+        uses: ansible-actions/j2lint-action@v0.0.1
         with:
           target: "./"
