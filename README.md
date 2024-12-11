@@ -1,10 +1,11 @@
+[![Ansible Galaxy](https://ansible.l3d.space/svg/roles-ansible.restic.svg)](https://galaxy.ansible.com/ui/standalone/roles/roles-ansible/restic/)
+[![BSD-3 Clause](https://ansible.l3d.space/svg/roles-ansible.restic_license.svg)](LICENSE)
+[![Maintainance](https://ansible.l3d.space/svg/roles-ansible.restic_maintainance.svg)](https://ansible.l3d.space/#roles-ansible.restic)
+
  Ansible Role: restic
 =======================
 
 > **Beta:** This role is in beta status.
-
-[![license](https://raw.githubusercontent.com/roles-ansible/ansible_role_restic/main/.github/license.svg)](https://github.com/roles-ansible/ansible_role_restic/blob/main/LICENSE)
-[![Ansible Galaxy](https://raw.githubusercontent.com/roles-ansible/ansible_role_restic/main/.github/galaxy.svg)](https://galaxy.ansible.com/do1jlr/restic)
 
  Description
 -------------
