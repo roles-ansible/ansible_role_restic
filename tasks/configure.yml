@@ -1,9 +1,9 @@
 ---
 - name: (CONF)Initialize repository
-  ansible.builtin.command: '{{ restic_install_path }}/restic init'
+  ansible.builtin.command: "{{ restic_install_path }}/restic init"
   environment:
-    RESTIC_REPOSITORY: '{{ item.value.location }}'
-    RESTIC_PASSWORD: '{{ item.value.password }}'
+    RESTIC_REPOSITORY: "{{ item.value.location }}"
+    RESTIC_PASSWORD: "{{ item.value.password }}"
     AWS_ACCESS_KEY_ID: '{{ item.value.aws_access_key | default("") }}'
     AWS_SECRET_ACCESS_KEY: '{{ item.value.aws_secret_access_key | default("") }}'
     AWS_DEFAULT_REGION: '{{ item.value.aws_default_region | default("") }}'
@@ -13,6 +13,9 @@
     AZURE_ENDPOINT_SUFFIX: '{{ item.value.azure_endpoint_suffix | default("") }}'
     B2_ACCOUNT_ID: '{{ item.value.b2_account_id | default("") }}'
     B2_ACCOUNT_KEY: '{{ item.value.b2_account_key | default("") }}'
+    GOOGLE_PROJECT_ID: '{{ item.value.google_project_id | default("") }}'
+    GOOGLE_APPLICATION_CREDENTIALS: '{{ item.value.google_application_credentials | default("") }}'
+    GOOGLE_ACCESS_TOKEN: '{{ item.value.google_access_token | default("") }}'
   no_log: "{{ restic_no_log }}"
   register: restic_init
   changed_when: "'created restic repository' in restic_init.stdout"
