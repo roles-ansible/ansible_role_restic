@@ -54,6 +54,12 @@ export GOMAXPROCS={{ restic__max_cpus }}
 export RESTIC_REPOSITORY={{ restic_repos[item.repo].location }}
 export RESTIC_PASSWORD='{{ restic_repos[item.repo].password | regex_replace('\'', '\'\\\'\'') }}'
 BACKUP_NAME={{ item.name }}
+{% if restic_repos[item.repo].google_project_id is defined %}
+export GOOGLE_PROJECT_ID={{ restic_repos[item.repo].google_project_id }}
+{% endif %}
+{% if restic_repos[item.repo].google_application_credentials is defined %}
+export GOOGLE_APPLICATION_CREDENTIALS={{ restic_repos[item.repo].google_application_credentials }}
+{% endif %}
 {% if restic_repos[item.repo].aws_access_key is defined %}
 export AWS_ACCESS_KEY_ID={{ restic_repos[item.repo].aws_access_key }}
 {% endif %}
