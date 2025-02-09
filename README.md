@@ -164,7 +164,7 @@ Available variables:
 | `stdin_cmd`        | no (yes if `stdin` == `true`) | The command to produce the stdin. |
 | `stdin_filename`   |              no               | The filename used in the repository. |
 | `pre_backup_cmd`   |              no               | A command to run before backup, typically used to dump databases to disk |
-| `past_backup_cmd`   |              no               | A command to run after backup, typically used to cleanup database dumps on disk |
+| `post_backup_cmd`   |              no               | A command to run after backup, typically used to cleanup database dumps on disk |
 | `tags`             |              no               | Array of default tags  |
 | `keep_last`        |              no               | If set, only keeps the last n snapshots.  |
 | `keep_hourly`      |              no               | If set, only keeps the last n hourly snapshots.                                                                                                                              |
