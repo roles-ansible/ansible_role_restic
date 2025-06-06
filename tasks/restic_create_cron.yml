@@ -3,7 +3,7 @@
   ansible.builtin.cron:
     name: "do1jlr.restic backup {{ item.name }}"
     job: "CRON=true {{ restic_script_dir }}/backup-{{ item.name | replace(' ', '') }}.sh"
-    minute: '{{ item.schedule_minute | default("*") }}'
+    minute: '{{ item.schedule_minute | default("0") }}'
     hour: '{{ item.schedule_hour | default("2") }}'
     weekday: '{{ item.schedule_weekday | default("*") }}'
     month: '{{ item.schedule_month | default("*") }}'
