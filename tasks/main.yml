@@ -6,6 +6,9 @@
   ansible.builtin.include_tasks: 'versioncheck.yml'
   when: submodules_versioncheck | bool
 
+- name: Add restic user
+  ansible.builtin.include_tasks: 'user.yml'
+
 - name: Make sure restic is available
   ansible.builtin.include_tasks: 'preparation.yml'
 
