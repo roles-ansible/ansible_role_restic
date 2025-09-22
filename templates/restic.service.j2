@@ -11,9 +11,8 @@ Type=oneshot
 PrivateMounts=on
 {% endif %}
 {% if item.niceness is defined %}
-ExecStart=/usr/bin/nice -n {{ item.niceness }} {{ restic_script_dir }}/backup-{{ item.name }}.sh
-{% else %}
-ExecStart={{ restic_script_dir }}/backup-{{ item.name }}.sh
+Nice: {{ item.niceness }}
 {% endif %}
+ExecStart={{ restic_script_dir }}/backup-{{ item.name }}.sh
 TimeoutStartSec=0
 Environment="CRON=true"
