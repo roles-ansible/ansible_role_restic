@@ -24,12 +24,6 @@
         owner: '{{ restic_dir_owner }}'
         group: '{{ restic_dir_group }}'
 
-    - name: ensure log folder exists and is writeable
-      ansible.builtin.file:
-        path: "{{ restic_log_dir }}"
-        owner: '{{ restic_user }}'
-        group: '{{ restic_user }}'
-        mode: '0755'
       
     - name: Ensure restic binary has cap_dac_read_search capability
       community.general.capabilities:
