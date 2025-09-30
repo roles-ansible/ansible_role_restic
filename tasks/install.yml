@@ -24,7 +24,6 @@
         owner: '{{ restic_dir_owner }}'
         group: '{{ restic_dir_group }}'
 
-      
     - name: Ensure restic binary has cap_dac_read_search capability
       community.general.capabilities:
         path: "/opt/restic/bin/restic-{{ restic_version }}"

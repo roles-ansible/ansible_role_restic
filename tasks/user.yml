@@ -1,6 +1,7 @@
-- name: create restic user
-  user:
+---
+- name: Create restic user
+  become: true
+  ansible.builtin.user:
     name: "{{ restic_user }}"
     shell: "/sbin/nologin"
     system: true
-

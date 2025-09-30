@@ -1,16 +1,22 @@
-- name: ensure log folder exists and is writeable
+---
+- name: Ensure log folder exists and is writeable
+  become: true
   ansible.builtin.file:
     path: "{{ restic_log_dir }}"
     owner: '{{ restic_user }}'
     group: '{{ restic_user }}'
     mode: '0755'
-- name: ensure cache dir exists and is writeable
+
+- name: Ensure cache dir exists and is writeable
+  become: true
   ansible.builtin.file:
     path: "{{ restic_log_dir }}"
     owner: '{{ restic_user }}'
     group: '{{ restic_user }}'
     mode: '0750'
+
 - name: Set ownership recursively
+  become: true
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
@@ -18,5 +24,5 @@
     group: "{{ restic_user }}"
     recurse: true
   with_items:
-  - "{{ restic_log_dir }}"
-  - "{{ restic_cache_dir }}"
+    - "{{ restic_log_dir }}"
+    - "{{ restic_cache_dir }}"
