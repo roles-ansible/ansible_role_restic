@@ -19,9 +19,17 @@
     - name: (INSTALL) Ensure permissions are correct
       ansible.builtin.file:
         path: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
-        mode: '0755'
+        # no executable rights for any user because restic now can read any file
+        mode: '0750'
         owner: '{{ restic_dir_owner }}'
         group: '{{ restic_dir_group }}'
+
+      
+    - name: Ensure restic binary has cap_dac_read_search capability
+      community.general.capabilities:
+        path: "/opt/restic/bin/restic-{{ restic_version }}"
+        capability: cap_dac_read_search=+ep
+        state: present
 
     - name: (INSTALL) Test the binary
       ansible.builtin.command: "{{ restic_bin_path }} version"

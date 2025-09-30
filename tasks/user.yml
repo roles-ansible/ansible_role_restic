@@ -1,0 +1,6 @@
+- name: create restic user
+  user:
+    name: "{{ restic_user }}"
+    shell: "/sbin/nologin"
+    system: true
+

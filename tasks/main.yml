@@ -6,6 +6,9 @@
   ansible.builtin.include_tasks: 'versioncheck.yml'
   when: submodules_versioncheck | bool
 
+- name: Add restic user
+  ansible.builtin.include_tasks: 'user.yml'
+
 - name: Make sure restic is available
   ansible.builtin.include_tasks: 'preparation.yml'
 
@@ -33,6 +36,9 @@
     distribution: '{{ ansible_distribution }}'
     distribution_version: '{{ ansible_distribution_version }}'
     distribution_major_version: '{{ ansible_distribution_major_version }}'
+
+- name: Set user permissions on folders
+  ansible.builtin.include_tasks: 'permissions.yml'
 
 - name: Run backups now
   ansible.builtin.include_tasks: 'run_backup.yml'

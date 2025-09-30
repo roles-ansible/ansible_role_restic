@@ -16,4 +16,5 @@ ExecStart=/usr/bin/nice -n {{ item.niceness }} {{ restic_script_dir }}/backup-{{
 ExecStart={{ restic_script_dir }}/backup-{{ item.name }}.sh
 {% endif %}
 TimeoutStartSec=0
+User={{ restic_user }}
 Environment="CRON=true"
