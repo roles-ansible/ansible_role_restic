@@ -11,9 +11,9 @@ if [ -e $pid ]; then
   echo "Another version of this restic backup script is already running!"
    {% if item.mail_on_error is defined and item.mail_on_error == true %}
     mail -s "starting restic backup failed on {{ ansible_hostname }}" {{ item.mail_address }}  <<< "Another restic backup process is already running. We canceled starting a new restic backup script running at {{ ansible_hostname }} at $(date -u '+%Y-%m-%d %H:%M:%S').
-      {%- if item.src is defined -%}
+      {%-    if item.src is defined -%}
         {{ ' ' }}We tried to backup '{{ item.src }}'.
-      {%- endif -%}
+      {%-    endif -%}
       {{ ' ' }}Please repair the restic-{{ item.name | replace(' ', '') }} job."
     {% endif %}
    exit # pid file exists, another instance is running, so now we politely exit
