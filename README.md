@@ -178,7 +178,7 @@ Available variables:
 | `forget_extra_args` |       no                     | Extra arguments to pass to the `restic forget` command. |
 | `scheduled`        |         no (`false`)          | If `restic_create_schedule` is set to `true`, this backup is scheduled and tries to create a systemd timer unit. If it fails, it is creating a cronjob. |
 | `schedule_oncalendar` |  ``'*-*-* 02:00:00'``      | The time for the systemd timer. Please notice the randomDelaySec option. By Default the backup is done every night at 2 am (+0-4h). But only if scheduled is true.  |
-| `schedule_minute`  |           no (`*`)            | Minute when the job is run. ( 0-59, *, */2, etc ) |
+| `schedule_minute`  |           no (`0`)            | Minute when the job is run. ( 0-59, *, */2, etc ) |
 | `schedule_hour`    |           no (`2`)            | Hour when the job is run. ( 0-23, *, */2, etc )  |
 | `schedule_weekday` |           no (`*`)            | Weekday when the job is run.  ( 0-6 for Sunday-Saturday, *, etc ) |
 | `schedule_month`   |           no (`*`)            | Month when the job is run. ( 1-12, *, */2, etc )  |
