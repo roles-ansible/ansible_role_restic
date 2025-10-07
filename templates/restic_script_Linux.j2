@@ -330,10 +330,12 @@ fi
   to not break configs still using that spelling 
   we make sure both new and old spelling works
 #}
-{% if item.past_backup_cmd is defined %}
-  {{ item.past_backup_cmd }} {{ post_backup_cmd_output_log }}
-{% if item.post_backup_cmd is defined %}
-  {{ item.post_backup_cmd }} {{ post_backup_cmd_output_log }}
+{% if item.past_backup_cmd is defined or item.post_backup_cmd is defined %}
+  {% if item.past_backup_cmd is defined %}
+    {{ item.past_backup_cmd }} {{ post_backup_cmd_output_log }}
+  {% else %}
+    {{ item.post_backup_cmd }} {{ post_backup_cmd_output_log }}
+  {% endif %}
 if [[ $? -eq 0 ]]
 then
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') OK" {{ post_backup_cmd_result_log }}
