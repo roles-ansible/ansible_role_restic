@@ -8,6 +8,7 @@
 
 - name: Add restic user
   ansible.builtin.include_tasks: 'user.yml'
+  when: restic_user == 'restic'
 
 - name: Make sure restic is available
   ansible.builtin.include_tasks: 'preparation.yml'
