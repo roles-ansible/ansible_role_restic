@@ -194,7 +194,7 @@ set -uxo pipefail
   Define paths
 #}
 {% macro paths(repo) -%}
-{% if repo.src is defined and repo.src != None and (repo.src is not string)  %}{%for path in repo.src %} --path {{ path }}{% endfor %}{%elif repo.src is defined repo.src is string %}--path {{repo.src}} {% else %} --path {{ repo.stdin_filename }}{% endif %}
+{% if repo.src is defined and repo.src != None and (repo.src is not string)  %}{%for path in repo.src %} --path {{ path }}{% endfor %}{%elif repo.src is string %}--path {{repo.src}} {% else %} --path {{ repo.stdin_filename }}{% endif %}
 {%- endmacro %}
 {#
   Define retention pattern
@@ -330,12 +330,12 @@ fi
   to not break configs still using that spelling 
   we make sure both new and old spelling works
 #}
+{% if item.past_backup_cmd is defined %}
+  {{ item.past_backup_cmd }} {{ post_backup_cmd_output_log }}
+{% elif item.post_backup_cmd is defined %}
+  {{ item.post_backup_cmd }} {{ post_backup_cmd_output_log }}
+{% endif %}
 {% if item.past_backup_cmd is defined or item.post_backup_cmd is defined %}
-  {% if item.past_backup_cmd is defined %}
-    {{ item.past_backup_cmd }} {{ post_backup_cmd_output_log }}
-  {% else %}
-    {{ item.post_backup_cmd }} {{ post_backup_cmd_output_log }}
-  {% endif %}
 if [[ $? -eq 0 ]]
 then
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') OK" {{ post_backup_cmd_result_log }}
