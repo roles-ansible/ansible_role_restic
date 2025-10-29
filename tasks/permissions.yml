@@ -11,6 +11,7 @@
   become: true
   ansible.builtin.file:
     path: "{{ restic__cache_dir }}"
+    state: directory
     owner: "{{ restic_user }}"
     group: "{{ restic_user }}"
     mode: "0750"
