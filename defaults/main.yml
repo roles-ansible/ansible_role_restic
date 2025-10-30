@@ -15,6 +15,7 @@ restic_backup_now: false
 restic_no_log: true
 
 restic_user: restic
+restic_create_user: "{{ restic_user != 'root' }}"
 restic_dir_owner: '{{ restic_user }}'
 restic_dir_group: '{{ restic_user }}'
 
