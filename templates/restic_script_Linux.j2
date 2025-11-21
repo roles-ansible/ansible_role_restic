@@ -281,7 +281,8 @@ fi
 } \
 {% endif %} {{ backup_output_log }}
 
-case $? in
+BACKUP_EXIT_CODE=$?
+case $BACKUP_EXIT_CODE in
     0)
         echo "$(date -u '+%Y-%m-%d %H:%M:%S') OK" {{ backup_result_log }}
         ;;
@@ -312,7 +313,10 @@ if [[ $? -eq 0 ]]
 then
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') OK" {{ forget_result_log }}
     {% if item.monitoring_call is defined %}
-    {{ item.monitoring_call }}
+    # Only call monitoring if backup also succeeded (exit code 0 or 3)
+    if [[ $BACKUP_EXIT_CODE -eq 0 ]]; then
+        {{ item.monitoring_call }}
+    fi
     {% endif %}
 else
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') ERROR" {{ forget_result_log }}
