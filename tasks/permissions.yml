@@ -3,6 +3,7 @@
   become: true
   ansible.builtin.file:
     path: "{{ restic_pid_dir }}"
+    state: directory
     owner: "{{ restic_user }}"
     group: "{{ restic_user }}"
     mode: "0755"
