@@ -3,7 +3,7 @@
 # Backup script for {{ item.src|default('stdin') }}
 # Use this file to create a Backup and prune existing data with one execution.
 
-pid="/var/run/restic_backup_{{  item.name | regex_replace('\'', '\'\\\'\'') }}.pid"
+pid="{{ restic_pid_dir }}/backup_{{  item.name | regex_replace('\'', '\'\\\'\'') }}.pid"
 trap "rm -f $pid" SIGSEGV
 trap "rm -f $pid" SIGINT
 

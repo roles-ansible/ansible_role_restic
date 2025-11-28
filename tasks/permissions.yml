@@ -1,4 +1,12 @@
 ---
+- name: Ensure pid folder exists and is writeable
+  become: true
+  ansible.builtin.file:
+    path: "{{ restic_pid_dir }}"
+    owner: "{{ restic_user }}"
+    group: "{{ restic_user }}"
+    mode: "0755"
+
 - name: Ensure log folder exists and is writeable
   become: true
   ansible.builtin.file:
