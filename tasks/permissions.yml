@@ -34,5 +34,6 @@
     group: "{{ restic_user }}"
     recurse: true
   with_items:
+    - "{{ restic_pid_dir }}"
     - "{{ restic_log_dir }}"
     - "{{ restic__cache_dir }}"
