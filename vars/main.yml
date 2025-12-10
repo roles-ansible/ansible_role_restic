@@ -1,11 +1,11 @@
 ---
 restic_os_variables:
   files:
-    - '{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml'
-    - '{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml'
-    - '{{ ansible_distribution }}.yml'
-    - '{{ ansible_os_family }}.yml'
-    - '{{ ansible_system }}.yml'
+    - '{{ ansible_facts["distribution"] }}-{{ ansible_facts["distribution_version"] }}.yml'
+    - '{{ ansible_facts["distribution"] }}-{{ ansible_facts["distribution_major_version"] }}.yml'
+    - '{{ ansible_facts["distribution"] }}.yml'
+    - '{{ ansible_facts["os_family"] }}.yml'
+    - '{{ ansible_facts["system"] }}.yml'
     - 'defaults.yml'
   paths:
     - 'vars'
