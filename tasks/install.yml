@@ -26,7 +26,7 @@
 
     - name: Ensure restic binary has cap_dac_read_search capability
       community.general.capabilities:
-        path: "/opt/restic/bin/restic-{{ restic_version }}"
+        path: "{{ restic_download_path }}/bin/restic-{{ restic_version }}"
         capability: cap_dac_read_search=+ep
         state: present
 
