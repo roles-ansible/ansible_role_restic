@@ -1,7 +1,7 @@
 ---
 - name: (SCHEDULE) (SYSTEMD) create systemd timer
   when:
-    - ansible_service_mgr == 'systemd'
+    - ansible_facts['service_mgr'] == 'systemd'
     - restic_schedule_type == "systemd"
     - restic_create_schedule | bool
   block:

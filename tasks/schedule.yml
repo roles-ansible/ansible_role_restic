@@ -2,14 +2,14 @@
 - name: (SCHEDULE) create restic systemd timer
   ansible.builtin.include_tasks: restic_create_systemd.yml
   when:
-    - ansible_service_mgr == 'systemd'
+    - ansible_facts['service_mgr'] == 'systemd'
     - restic_schedule_type == "systemd"
     - restic_create_schedule | bool
 
 - name: (SCHEDULE) delete systemd timers if available
   ansible.builtin.include_tasks: restic_delete_systemd.yml
   when:
-    - ansible_service_mgr == 'systemd'
+    - ansible_facts['service_mgr'] == 'systemd'
     - restic_schedule_type == "cronjob" or restic_force_cron | default(false)
     - restic_create_schedule | bool
 
@@ -21,13 +21,13 @@
   ansible.builtin.include_tasks: restic_create_cron.yml
   when:
     - restic_create_schedule | bool
-    - ansible_service_mgr != 'systemd' or restic_force_cron | default(false) or restic_schedule_type == "cronjob"
+    - ansible_facts['service_mgr'] != 'systemd' or restic_force_cron | default(false) or restic_schedule_type == "cronjob"
 
 - name: (SCHEDULE) remove restic cronjobs
   ansible.builtin.include_tasks: restic_delete_cron.yml
   when:
     - restic_create_schedule | bool
-    - ansible_service_mgr == 'systemd'
+    - ansible_facts['service_mgr'] == 'systemd'
     - not restic_force_cron | default(false)
     - restic_schedule_type != "cronjob"
     - not restic_do_not_cleanup_cron | bool

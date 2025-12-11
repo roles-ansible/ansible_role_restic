@@ -13,4 +13,4 @@
     - restic_create_schedule
     - item.name is defined
     - item.scheduled | default(false)
-    - ansible_service_mgr == 'systemd'
+    - ansible_facts['service_mgr'] == 'systemd'

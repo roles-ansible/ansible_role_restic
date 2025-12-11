@@ -7,7 +7,7 @@
     success_msg: "Congratulations. You are using ansible version {{ ansible_version.full }}"
   delegate_to: localhost
   when:
-    - ansible_service_mgr != 'systemd' or restic_force_cron | default(false) or restic_schedule_type == "cronjob"
+    - ansible_facts['service_mgr'] != 'systemd' or restic_force_cron | default(false) or restic_schedule_type == "cronjob"
   register: old_af
   failed_when: false
   ignore_errors: true

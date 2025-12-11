@@ -3,4 +3,4 @@
 
 - name: Message
   ansible.builtin.fail:
-    msg: 'Your {{ ansible_system }} is not yet supported'
+    msg: 'Your {{ ansible_facts["system"] }} is not yet supported'
