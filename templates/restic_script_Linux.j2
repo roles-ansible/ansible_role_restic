@@ -8,7 +8,12 @@ trap "rm -f $pid" SIGSEGV
 trap "rm -f $pid" SIGINT
 
 if [ -e $pid ]; then
-  echo "Another version of this restic backup script is already running!"
+  # Read the PID from the file
+  OLD_PID=$(cat "$pid")
+
+  # Check if the process is actually running
+  if ps -p "$OLD_PID" > /dev/null 2>&1; then
+    echo "Another version of this restic backup script is already running! (PID: $OLD_PID)"
    {% if item.mail_on_error is defined and item.mail_on_error == true %}
     mail -s "starting restic backup failed on {{ ansible_facts['hostname'] }}" {{ item.mail_address }}  <<< "Another restic backup process is already running. We canceled starting a new restic backup script running at {{ ansible_facts['hostname'] }} at $(date -u '+%Y-%m-%d %H:%M:%S').
       {%- if item.src is defined -%}
@@ -16,7 +21,10 @@ if [ -e $pid ]; then
       {%- endif -%}
       {{ ' ' }}Please repair the restic-{{ item.name | replace(' ', '') }} job."
     {% endif %}
-   exit # pid file exists, another instance is running, so now we politely exit
+    exit 1
+  else
+    echo "Warning: Stale PID file found. (process $OLD_PID is not running). Proceeding with execution" >&2
+  fi
 else
     echo $$ > $pid # pid file doesn't exit, create one and go on
 fi
