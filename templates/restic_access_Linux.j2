@@ -42,3 +42,6 @@ BACKUP_NAME={{ item.name }}
 {% if item.src is defined %}
 BACKUP_SOURCE={{ item.src }}
 {% endif %}
+{% if restic__cache_config | bool -%}
+  export XDG_CACHE_HOME={{ restic__cache_dir }}
+{% endif %}
