@@ -43,7 +43,7 @@ fi
 {% endif %}
 
 {% if restic__cache_config | bool -%}
-  export XDG_CACHE_HOME={{ restic__cache_dir }}
+  export RESTIC_CACHE_DIR={{ restic__cache_dir }}
 {% endif %}
 
 {% if restic__limit_cpu_usage | bool -%}
