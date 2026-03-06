@@ -15,9 +15,9 @@ restic_create_paths:
 restic_bin_path: '{{ restic_download_path }}/bin/restic-{{ restic_version }}'
 
 restic_url_r: 'https://github.com/restic/restic/releases/download/'
-arch: '{{ ansible_architecture }}'
+arch: '{{ ansible_facts["architecture"] }}'
 restic_platform: '{{ _platform_map[arch] | default(arch) }}'
-restic_system: '{{ ansible_system | lower }}'
+restic_system: '{{ ansible_facts["system"] | lower }}'
 restic_url_v: 'v{{ restic_version }}/restic_{{ restic_version }}_'
 restic_file: '{{ restic_system }}_{{ restic_platform }}.bz2'
 restic_url_default: '{{ restic_url_r }}{{ restic_url_v }}{{ restic_file }}'

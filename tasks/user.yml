@@ -5,3 +5,6 @@
     name: "{{ restic_user }}"
     shell: "/sbin/nologin"
     system: true
+  when:
+    - restic_create_user | bool
+    - restic_user != 'root'
