@@ -3,20 +3,28 @@
 # Backup script for {{ item.src|default('stdin') }}
 # Use this file to create a Backup and prune existing data with one execution.
 
-pid="/var/run/restic_backup_{{  item.name | regex_replace('\'', '\'\\\'\'') }}.pid"
+pid="{{ restic_pid_dir }}/backup_{{  item.name | regex_replace('\'', '\'\\\'\'') }}.pid"
 trap "rm -f $pid" SIGSEGV
 trap "rm -f $pid" SIGINT
 
 if [ -e $pid ]; then
-  echo "Another version of this restic backup script is already running!"
+  # Read the PID from the file
+  OLD_PID=$(cat "$pid")
+
+  # Check if the process is actually running
+  if ps -p "$OLD_PID" > /dev/null 2>&1; then
+    echo "Another version of this restic backup script is already running! (PID: $OLD_PID)"
    {% if item.mail_on_error is defined and item.mail_on_error == true %}
-    mail -s "starting restic backup failed on {{ ansible_hostname }}" {{ item.mail_address }}  <<< "Another restic backup process is already running. We canceled starting a new restic backup script running at {{ ansible_hostname }} at $(date -u '+%Y-%m-%d %H:%M:%S').
+    mail -s "starting restic backup failed on {{ ansible_facts['hostname'] }}" {{ item.mail_address }}  <<< "Another restic backup process is already running. We canceled starting a new restic backup script running at {{ ansible_facts['hostname'] }} at $(date -u '+%Y-%m-%d %H:%M:%S').
       {%- if item.src is defined -%}
         {{ ' ' }}We tried to backup '{{ item.src }}'.
       {%- endif -%}
       {{ ' ' }}Please repair the restic-{{ item.name | replace(' ', '') }} job."
     {% endif %}
-   exit # pid file exists, another instance is running, so now we politely exit
+    exit 1
+  else
+    echo "Warning: Stale PID file found. (process $OLD_PID is not running). Proceeding with execution" >&2
+  fi
 else
     echo $$ > $pid # pid file doesn't exit, create one and go on
 fi
@@ -43,7 +51,7 @@ fi
 {% endif %}
 
 {% if restic__cache_config | bool -%}
-  export XDG_CACHE_HOME={{ restic__cache_dir }}
+  export RESTIC_CACHE_DIR={{ restic__cache_dir }}
 {% endif %}
 
 {% if restic__limit_cpu_usage | bool -%}
@@ -245,7 +253,7 @@ then
 else
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') ERROR" {{ pre_backup_cmd_result_log }}
     {% if item.mail_on_error is defined and item.mail_on_error == true %}
-    mail -s "restic backup failed on {{ ansible_hostname }}" {{ item.mail_address }}  <<< "Something went wrong while running restic backup script running at {{ ansible_hostname }} at $(date -u '+%Y-%m-%d %H:%M:%S').
+    mail -s "restic backup failed on {{ ansible_facts['hostname'] }}" {{ item.mail_address }}  <<< "Something went wrong while running restic backup script running at {{ ansible_facts['hostname'] }} at $(date -u '+%Y-%m-%d %H:%M:%S').
       {%- if item.src is defined -%}
         {{ ' ' }}We tried to backup '{{ item.src }}'.
       {%- endif -%}
@@ -281,7 +289,8 @@ fi
 } \
 {% endif %} {{ backup_output_log }}
 
-case $? in
+BACKUP_EXIT_CODE=$?
+case $BACKUP_EXIT_CODE in
     0)
         echo "$(date -u '+%Y-%m-%d %H:%M:%S') OK" {{ backup_result_log }}
         ;;
@@ -291,7 +300,7 @@ case $? in
     *)
         echo "$(date -u '+%Y-%m-%d %H:%M:%S') ERROR" {{ backup_result_log }}
     {% if item.mail_on_error is defined and item.mail_on_error == true %}
-    mail -s "restic backup failed on {{ ansible_hostname }}" {{ item.mail_address }}  <<< "Something went wrong while running restic backup script running at {{ ansible_hostname }} at $(date -u '+%Y-%m-%d %H:%M:%S').
+    mail -s "restic backup failed on {{ ansible_facts['hostname'] }}" {{ item.mail_address }}  <<< "Something went wrong while running restic backup script running at {{ ansible_facts['hostname'] }} at $(date -u '+%Y-%m-%d %H:%M:%S').
       {%- if item.src is defined -%}
         {{ ' ' }}We tried to backup '{{ item.src }}'.
       {%- endif -%}
@@ -312,12 +321,15 @@ if [[ $? -eq 0 ]]
 then
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') OK" {{ forget_result_log }}
     {% if item.monitoring_call is defined %}
-    {{ item.monitoring_call }}
+    # Only call monitoring if backup also succeeded (exit code 0 or 3)
+    if [[ $BACKUP_EXIT_CODE -eq 0 ]]; then
+        {{ item.monitoring_call }}
+    fi
     {% endif %}
 else
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') ERROR" {{ forget_result_log }}
     {% if item.mail_on_error is defined and item.mail_on_error == true %}
-    mail -s "restic backup failed on {{ ansible_hostname }}" {{ item.mail_address }}  <<< "Something went wrong while running restic backup script running at {{ ansible_hostname }} at $(date -u '+%Y-%m-%d %H:%M:%S').
+    mail -s "restic backup failed on {{ ansible_facts['hostname'] }}" {{ item.mail_address }}  <<< "Something went wrong while running restic backup script running at {{ ansible_facts['hostname'] }} at $(date -u '+%Y-%m-%d %H:%M:%S').
       {%- if item.src is defined -%}
         {{ ' ' }}We tried to backup '{{ item.src }}'.
       {%- endif -%}
@@ -332,15 +344,17 @@ fi
 #}
 {% if item.past_backup_cmd is defined %}
   {{ item.past_backup_cmd }} {{ post_backup_cmd_output_log }}
-{% if item.post_backup_cmd is defined %}
+{% elif item.post_backup_cmd is defined %}
   {{ item.post_backup_cmd }} {{ post_backup_cmd_output_log }}
+{% endif %}
+{% if item.past_backup_cmd is defined or item.post_backup_cmd is defined %}
 if [[ $? -eq 0 ]]
 then
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') OK" {{ post_backup_cmd_result_log }}
 else
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') ERROR" {{ post_backup_cmd_result_log }}
     {% if item.mail_on_error is defined and item.mail_on_error == true %}
-    mail -s "restic backup failed on {{ ansible_hostname }}" {{ item.mail_address }}  <<< "Something went wrong while running restic backup script running at {{ ansible_hostname }} at $(date -u '+%Y-%m-%d %H:%M:%S').
+    mail -s "restic backup failed on {{ ansible_facts['hostname'] }}" {{ item.mail_address }}  <<< "Something went wrong while running restic backup script running at {{ ansible_facts['hostname'] }} at $(date -u '+%Y-%m-%d %H:%M:%S').
       {%- if item.src is defined -%}
         {{ ' ' }}We tried to backup '{{ item.src }}'.
       {%- endif -%}

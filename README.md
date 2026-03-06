@@ -74,6 +74,7 @@ ansible-galaxy install roles-ansible.restic
 | `restic_install_path`         | `'/usr/local/bin'`              | Install location for the restic binary                                                                                                               |
 | `restic_script_dir`           | `'/opt/restic'`                 | Location of the generated backup scripts                                                                                                             |
 | `restic_backup_script_shell`  | `sh`                            | Shell to use for run of backup script                                                                                                             |
+| `restic_pid_dir`              | `'/var/run/restic'`             | Location of the PID files that lock each backup script to a single running instance                                                                                                          |
 | `restic_log_dir`              | `'{{ restic_script_dir }}/log'` | Location of the logs of the backup scripts                                                                                                           |
 | `restic_repos`                | `{}`                            | A dictionary of repositories where snapshots are stored. *(More Info: [Repos](#Repos))*                                                              |
 | `restic_backups`              | `{}` (or `[]`)                  | A list of dictionaries specifying the files and directories to be backed up *(More Infos: [Backups](#Backups))*                                      |
@@ -81,8 +82,10 @@ ansible-galaxy install roles-ansible.restic
 | `restic_backup_now`           | `false`                         | Whether or not the backup script should be run immediately                                                                                           |
 | `restic_run_check`            | `false`                         | Run `restic check` against all repositories during the play. Configure per-repo options via `check_extra_args` in `restic_repos`.                    |
 | `restic_schedule_type`        | `systemd`                       | Here you can define if we create a ``cronjob`` or a ``systemd`` timer. If it fails to create a systemd timer, a cronjob will be created.             |
-| `restic_dir_owner`            | `'{{ansible_user}}'`            | The owner of all created dirs                                                                                                                        |
-| `restic_dir_group`            | `'{{ansible_user}}'`            | The group of all created dirs                                                                                                                        |
+| `restic_user`                 | `'restic'`                      | System account that owns the restic files and runs scheduled tasks.                                                                                  |
+| `restic_create_user`          | `"{{ restic_user != 'root' }}"` | Controls if the role should create `restic_user`. Useful to skip creation when an existing account or `root` is used.                                |
+| `restic_dir_owner`            | `'{{ restic_user }}'`           | The owner of all created dirs                                                                                                                        |
+| `restic_dir_group`            | `'{{ restic_user }}'`           | The group of all created dirs                                                                                                                        |
 | `restic_no_log`               | `true`                          | Set to false to see hidden ansible logs                                                                                                              |
 | `restic_do_not_cleanup_cron ` | `false`                         | We changed the cron location and clean up the old one. You can skip the cleanup here                                                                 |
 | `restic__cache_config`        | `false`                         | Configure custom cache directory                                                                                                                     |
@@ -232,6 +235,7 @@ Available variables:
 | `keep_tag`         |              no               | If set, keep snapshots with this tags. Make sure to specify a list.                                                                                                          |
 | `prune`            |         no (`false`)          | If `true`, the `restic forget` command in the script has the [`--prune` option](https://restic.readthedocs.io/en/stable/060_forget.html#removing-backup-snapshots) appended. |
 | `forget_extra_args` |       no                     | Extra arguments to pass to the `restic forget` command. |
+| `skip_forget`      |         no                    | Skip restic forget, eg if you have a separate cleanup script. |
 | `scheduled`        |         no (`false`)          | If `restic_create_schedule` is set to `true`, this backup is scheduled and tries to create a systemd timer unit. If it fails, it is creating a cronjob. |
 | `schedule_oncalendar` |  ``'*-*-* 02:00:00'``      | The time for the systemd timer. Please notice the randomDelaySec option. By Default the backup is done every night at 2 am (+0-4h). But only if scheduled is true.  |
 | `schedule_minute`  |           no (`0`)            | Minute when the job is run. ( 0-59, *, */2, etc ) |

@@ -11,11 +11,11 @@ jobs:
 
     steps:
       - name: 'checkout git repo'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Run ansible-lint
-        uses: ansible-actions/ansible-lint-action@v1.0.3
+        uses: ansible-actions/ansible-lint-action@v1.1.0
         with:
           target: "./"
