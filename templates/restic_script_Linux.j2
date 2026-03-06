@@ -270,6 +270,7 @@ fi
     {{ tags(item.tags) }} \
     {{ stdin_filename(item.stdin_filename) }} \
     {% if item.exclude is defined %}{{ exclude(item.exclude) }}{% endif %} \
+    {% if item.backup_extra_args is defined %}{{ item.backup_extra_args }}{% endif %} \
     $@ \
 {% else %}
 {
@@ -277,6 +278,7 @@ fi
   {{ restic_install_path }}/restic backup {% if item.lvm is defined and item.src == '/' %}/rootfs{% endif %}$BACKUP_SOURCE $MODE_TAG \
     {{ tags(item.tags) }} \
     {% if item.exclude is defined %}{{ exclude(item.exclude) }}{% endif %} \
+    {% if item.backup_extra_args is defined %}{{ item.backup_extra_args }}{% endif %} \
     $@
 } \
 {% endif %} {{ backup_output_log }}
