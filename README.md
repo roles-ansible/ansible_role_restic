@@ -79,6 +79,7 @@ ansible-galaxy install roles-ansible.restic
 | `restic_backups`              | `{}` (or `[]`)                  | A list of dictionaries specifying the files and directories to be backed up *(More Infos: [Backups](#Backups))*                                      |
 | `restic_create_schedule`      | `false`                         | Should we schedule each backup? Either via cronjob or via systemd timer.                                                                             |
 | `restic_backup_now`           | `false`                         | Whether or not the backup script should be run immediately                                                                                           |
+| `restic_run_check`            | `false`                         | Run `restic check` against all repositories during the play. Configure per-repo options via `check_extra_args` in `restic_repos`.                    |
 | `restic_schedule_type`        | `systemd`                       | Here you can define if we create a ``cronjob`` or a ``systemd`` timer. If it fails to create a systemd timer, a cronjob will be created.             |
 | `restic_dir_owner`            | `'{{ansible_user}}'`            | The owner of all created dirs                                                                                                                        |
 | `restic_dir_group`            | `'{{ansible_user}}'`            | The group of all created dirs                                                                                                                        |
@@ -108,6 +109,61 @@ Available variables:
 | `location`              |   yes    | The location of the Backend. Currently, [Local](https://restic.readthedocs.io/en/stable/030_preparing_a_new_repo.html#local), [SFTP](https://restic.readthedocs.io/en/stable/030_preparing_a_new_repo.html#sftp), [S3](https://restic.readthedocs.io/en/stable/030_preparing_a_new_repo.html#amazon-s3), [Azure Blob](https://restic.readthedocs.io/en/stable/030_preparing_a_new_repo.html#microsoft-azure-blob-storage) and [B2](https://restic.readthedocs.io/en/stable/030_preparing_a_new_repo.html#backblaze-b2) are supported |
 | `password`              |   yes    | The password used to secure this repository                                                                                                                                                                                                                                                                             |
 | `init`                  |    no    | Describes if the repository should be initialized or not. Use `false` if you are backuping to an already existing repo.                                                                                                                                                                                                 |
+| `check_extra_args`      |    no    | Extra arguments passed to `restic check` for this repository when `restic_run_check` is `true`. See [Check examples](#check-examples) below.                                                                                                                                                                            |
+
+### Check examples
+
+Run `restic check` on all repos during the play by setting `restic_run_check: true`. Use `check_extra_args` per repo to control what is verified.
+
+**Default check** (index and metadata only, uses a temporary cache):
+```yaml
+restic_run_check: true
+restic_repos:
+  local:
+    location: /srv/restic-repo
+    password: securepassword
+```
+
+**Reuse the existing cache** (requires `restic__cache_config: true`):
+```yaml
+restic__cache_config: true
+restic_run_check: true
+restic_repos:
+  local:
+    location: /srv/restic-repo
+    password: securepassword
+    check_extra_args: "--with-cache"
+```
+
+**Verify all pack file data** (downloads everything — use with care on remote repos):
+```yaml
+restic_run_check: true
+restic_repos:
+  local:
+    location: /srv/restic-repo
+    password: securepassword
+    check_extra_args: "--read-data"
+```
+
+**Verify a subset of pack files** (spread the cost over multiple runs):
+```yaml
+restic_run_check: true
+restic_repos:
+  local:
+    location: /srv/restic-repo
+    password: securepassword
+    check_extra_args: "--read-data-subset=1/5"  # run with 1/5, 2/5, … 5/5 on successive days
+```
+
+**Verify a random percentage of pack files**:
+```yaml
+    check_extra_args: "--read-data-subset=10%"
+```
+
+**Verify a random subset up to a given size**:
+```yaml
+    check_extra_args: "--read-data-subset=500M"
+```
 
 Example:
 ```yaml

@@ -43,3 +43,7 @@
 - name: Run backups now
   ansible.builtin.include_tasks: 'run_backup.yml'
   when: restic_backup_now | bool
+
+- name: Run restic check
+  ansible.builtin.include_tasks: 'check.yml'
+  when: restic_run_check | bool
