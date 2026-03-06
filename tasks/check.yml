@@ -1,0 +1,24 @@
+---
+- name: (CHECK) Run restic check on repository
+  ansible.builtin.command: >-
+    {{ restic_install_path }}/restic check
+    {{ item.value.check_extra_args | default('') }}
+  environment:
+    RESTIC_REPOSITORY: "{{ item.value.location }}"
+    RESTIC_PASSWORD: "{{ item.value.password }}"
+    XDG_CACHE_HOME: "{{ restic__cache_dir if restic__cache_config | bool else omit }}"
+    AWS_ACCESS_KEY_ID: '{{ item.value.aws_access_key | default("") }}'
+    AWS_SECRET_ACCESS_KEY: '{{ item.value.aws_secret_access_key | default("") }}'
+    AWS_DEFAULT_REGION: '{{ item.value.aws_default_region | default("") }}'
+    AZURE_ACCOUNT_NAME: '{{ item.value.azure_account_name | default("") }}'
+    AZURE_ACCOUNT_KEY: '{{ item.value.azure_account_key | default("") }}'
+    AZURE_ACCOUNT_SAS: '{{ item.value.azure_account_sas | default("") }}'
+    AZURE_ENDPOINT_SUFFIX: '{{ item.value.azure_endpoint_suffix | default("") }}'
+    B2_ACCOUNT_ID: '{{ item.value.b2_account_id | default("") }}'
+    B2_ACCOUNT_KEY: '{{ item.value.b2_account_key | default("") }}'
+    GOOGLE_PROJECT_ID: '{{ item.value.google_project_id | default("") }}'
+    GOOGLE_APPLICATION_CREDENTIALS: '{{ item.value.google_application_credentials | default("") }}'
+    GOOGLE_ACCESS_TOKEN: '{{ item.value.google_access_token | default("") }}'
+  no_log: "{{ restic_no_log }}"
+  loop: "{{ restic_repos | dict2items }}"
+  changed_when: false

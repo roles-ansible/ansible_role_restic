@@ -5,16 +5,19 @@ restic_download_path: '/opt/restic'
 restic_install_path: '/usr/local/bin'
 restic_script_dir: '/opt/restic'
 restic_backup_script_shell: sh
+restic_pid_dir: '/var/run/restic'
 restic_log_dir: '{{ restic_script_dir }}/log'
 restic_repos: {}
 restic_backups: []
 restic_create_schedule: "{{ restic_create_cron }}"
 restic_schedule_type: "systemd"
 restic_backup_now: false
+restic_run_check: false
 # restic_schedule_type: "cronjob"
 restic_no_log: true
 
 restic_user: restic
+restic_create_user: "{{ restic_user != 'root' }}"
 restic_dir_owner: '{{ restic_user }}'
 restic_dir_group: '{{ restic_user }}'
 
