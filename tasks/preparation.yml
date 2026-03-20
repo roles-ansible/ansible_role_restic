@@ -1,4 +1,16 @@
 ---
+- name: (PREPARE) Fetch latest restic version from GitHub API
+  ansible.builtin.uri:
+    url: 'https://api.github.com/repos/restic/restic/releases/latest'
+    return_content: true
+  register: restic_latest_release
+  when: restic_version == 'latest'
+
+- name: (PREPARE) Set restic_version to latest release
+  ansible.builtin.set_fact:
+    restic_version: '{{ restic_latest_release.json.tag_name | regex_replace("^v", "") }}'
+  when: restic_version == 'latest'
+
 - name: (PREPARE) Ensure restic directories exist
   become: true
   ansible.builtin.file:
