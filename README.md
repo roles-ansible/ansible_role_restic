@@ -69,7 +69,7 @@ ansible-galaxy install roles-ansible.restic
 | Name                          | Default                         | Description                                                                                                                                          |
 |-------------------------------|---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `restic_url`                  | `undefined`                     | The URL to download restic from. Use this variable to overwrite the default                                                                          |
-| `restic_version`              | `'0.15.1'`                      | The version of Restic to install                                                                                                                     |
+| `restic_version`              | `'0.18.1'`                      | The version of Restic to install. Set to `'latest'` to automatically fetch and install the newest release from GitHub.                               |
 | `restic_download_path`        | `'/opt/restic'`                 | Download location for the restic binary                                                                                                              |
 | `restic_install_path`         | `'/usr/local/bin'`              | Install location for the restic binary                                                                                                               |
 | `restic_script_dir`           | `'/opt/restic'`                 | Location of the generated backup scripts                                                                                                             |
@@ -80,6 +80,7 @@ ansible-galaxy install roles-ansible.restic
 | `restic_backups`              | `{}` (or `[]`)                  | A list of dictionaries specifying the files and directories to be backed up *(More Infos: [Backups](#Backups))*                                      |
 | `restic_create_schedule`      | `false`                         | Should we schedule each backup? Either via cronjob or via systemd timer.                                                                             |
 | `restic_backup_now`           | `false`                         | Whether or not the backup script should be run immediately                                                                                           |
+| `restic_run_check`            | `false`                         | Run `restic check` against all repositories during the play. Configure per-repo options via `check_extra_args` in `restic_repos`.                    |
 | `restic_schedule_type`        | `systemd`                       | Here you can define if we create a ``cronjob`` or a ``systemd`` timer. If it fails to create a systemd timer, a cronjob will be created.             |
 | `restic_user`                 | `'restic'`                      | System account that owns the restic files and runs scheduled tasks.                                                                                  |
 | `restic_create_user`          | `"{{ restic_user != 'root' }}"` | Controls if the role should create `restic_user`. Useful to skip creation when an existing account or `root` is used.                                |
@@ -111,6 +112,61 @@ Available variables:
 | `location`              |   yes    | The location of the Backend. Currently, [Local](https://restic.readthedocs.io/en/stable/030_preparing_a_new_repo.html#local), [SFTP](https://restic.readthedocs.io/en/stable/030_preparing_a_new_repo.html#sftp), [S3](https://restic.readthedocs.io/en/stable/030_preparing_a_new_repo.html#amazon-s3), [Azure Blob](https://restic.readthedocs.io/en/stable/030_preparing_a_new_repo.html#microsoft-azure-blob-storage) and [B2](https://restic.readthedocs.io/en/stable/030_preparing_a_new_repo.html#backblaze-b2) are supported |
 | `password`              |   yes    | The password used to secure this repository                                                                                                                                                                                                                                                                             |
 | `init`                  |    no    | Describes if the repository should be initialized or not. Use `false` if you are backuping to an already existing repo.                                                                                                                                                                                                 |
+| `check_extra_args`      |    no    | Extra arguments passed to `restic check` for this repository when `restic_run_check` is `true`. See [Check examples](#check-examples) below.                                                                                                                                                                            |
+
+### Check examples
+
+Run `restic check` on all repos during the play by setting `restic_run_check: true`. Use `check_extra_args` per repo to control what is verified.
+
+**Default check** (index and metadata only, uses a temporary cache):
+```yaml
+restic_run_check: true
+restic_repos:
+  local:
+    location: /srv/restic-repo
+    password: securepassword
+```
+
+**Reuse the existing cache** (requires `restic__cache_config: true`):
+```yaml
+restic__cache_config: true
+restic_run_check: true
+restic_repos:
+  local:
+    location: /srv/restic-repo
+    password: securepassword
+    check_extra_args: "--with-cache"
+```
+
+**Verify all pack file data** (downloads everything — use with care on remote repos):
+```yaml
+restic_run_check: true
+restic_repos:
+  local:
+    location: /srv/restic-repo
+    password: securepassword
+    check_extra_args: "--read-data"
+```
+
+**Verify a subset of pack files** (spread the cost over multiple runs):
+```yaml
+restic_run_check: true
+restic_repos:
+  local:
+    location: /srv/restic-repo
+    password: securepassword
+    check_extra_args: "--read-data-subset=1/5"  # run with 1/5, 2/5, … 5/5 on successive days
+```
+
+**Verify a random percentage of pack files**:
+```yaml
+    check_extra_args: "--read-data-subset=10%"
+```
+
+**Verify a random subset up to a given size**:
+```yaml
+    check_extra_args: "--read-data-subset=500M"
+```
 
 Example:
 ```yaml
@@ -179,6 +235,7 @@ Available variables:
 | `keep_tag`         |              no               | If set, keep snapshots with this tags. Make sure to specify a list.                                                                                                          |
 | `prune`            |         no (`false`)          | If `true`, the `restic forget` command in the script has the [`--prune` option](https://restic.readthedocs.io/en/stable/060_forget.html#removing-backup-snapshots) appended. |
 | `forget_extra_args` |       no                     | Extra arguments to pass to the `restic forget` command. |
+| `backup_extra_args` |       no                     | Extra arguments to pass to the `restic backup` command (e.g. `--retry-lock 5m`). |
 | `skip_forget`      |         no                    | Skip restic forget, eg if you have a separate cleanup script. |
 | `scheduled`        |         no (`false`)          | If `restic_create_schedule` is set to `true`, this backup is scheduled and tries to create a systemd timer unit. If it fails, it is creating a cronjob. |
 | `schedule_oncalendar` |  ``'*-*-* 02:00:00'``      | The time for the systemd timer. Please notice the randomDelaySec option. By Default the backup is done every night at 2 am (+0-4h). But only if scheduled is true.  |
