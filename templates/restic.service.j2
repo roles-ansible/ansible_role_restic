@@ -5,6 +5,11 @@ Conflicts=fstrim.service
 After=fstrim.timer
 {% endif %}
 
+{% if item.retry is defined and item.retry %}
+StartLimitBurst=10
+StartLimitInterval=3600
+{% endif %}
+
 [Service]
 Type=oneshot
 {% if item.lvm is defined %}
@@ -18,3 +23,10 @@ ExecStart={{ restic_script_dir }}/backup-{{ item.name }}.sh
 TimeoutStartSec=0
 User={{ restic_user }}
 Environment="CRON=true"
+
+{% if item.retry is defined and item.retry %}
+Restart=on-failure
+RestartSec=60
+RestartMaxDelaySec=300s
+RestartSteps=60
+{% endif %}
