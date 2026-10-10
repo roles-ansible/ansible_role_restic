@@ -339,9 +339,9 @@ else
     {% endif %}
 fi
 
-{# 
-  post_backup_cmd was previously named past_backup_cmd, 
-  to not break configs still using that spelling 
+{#
+  post_backup_cmd was previously named past_backup_cmd,
+  to not break configs still using that spelling
   we make sure both new and old spelling works
 #}
 {% if item.past_backup_cmd is defined %}
@@ -366,4 +366,4 @@ fi
 {% endif %}
 
 rm -f $pid # remove pid file just before exiting
-exit
+exit $BACKUP_EXIT_CODE
