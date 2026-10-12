@@ -250,6 +250,11 @@ Available variables:
 | `mail_address`     |  if `mail_on_error` is true   | The mail address to receive mails if you enabled ``mail_on_error``. |
 | `monitoring_call`  |           no                  | A command that will be called if the backup is *successful*. Useful for heartbeat monitoring systems that warn when no heartbeat is received. Use the full command, you need to run. Example: `curl https://monitoring.example.com/api/push/E9Wzm4lJ2O?status=up&msg=OK&ping=` |
 | `niceness`         |           no                  | If set, runs any scheduled backup with given [niceness-value](https://en.wikipedia.org/wiki/Nice_(Unix)). On Linux -20 is highest priority, 0 default and 19 is lowest priority. 10 is a common low priority assigned to backup routines on production systems. |
+| `retry`           |            no                  | In case the backup script fails, instruct systemd to retry starting the service. |
+| `start_limit_burst` |          no                  | How many times the backup can be retried during the `start_limit_interval`. Defaults to 3 |
+| `start_limit_interval` |       no                  | The interval during which we limit the retries for the backup. Defaults to 60 |
+| `restartsec`    |              no                  | Configures the time to sleep before restarting a backup.  Takes a unit-less value in seconds, or a time span value such as "5min 20s". Defaults to 60s. |
+| `restartmaxdelaysec`  |        no                  | Configures the longest time to sleep before restarting a service. Defaults to 3600s |
 
 Example:
 ```yaml
@@ -269,6 +274,7 @@ restic_backups:
     scheduled: true
     schedule_oncalendar: '*-*-* 01:30:00'
     niceness: 10
+    retry: true
   all_databases:
     name: all_databases
     repo: remote
