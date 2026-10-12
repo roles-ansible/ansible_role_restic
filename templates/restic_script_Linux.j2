@@ -101,6 +101,9 @@ BACKUP_SOURCE={{ item.src }}
 BACKUP_SOURCE='{{ item.src| join(' ') }}'
 {% endif %}
 
+PRE_CMD_EXIT_CODE=0
+POST_CMD_EXIT_CODE=0
+
 {% if item.lvm is defined %}
 # Set up functions for LVM.
 
@@ -247,7 +250,10 @@ set -uxo pipefail
 
 {% if item.pre_backup_cmd is defined %}
   {{ item.pre_backup_cmd }} {{ pre_backup_cmd_output_log }}
-if [[ $? -eq 0 ]]
+
+$PRE_CMD_EXIT_CODE=$?
+
+if [[ $PRE_CMD_EXIT_CODE -eq 0 ]]
 then
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') OK" {{ pre_backup_cmd_result_log }}
 else
@@ -319,7 +325,10 @@ esac
   Define stdin forget commands
 #}
 {{ restic_install_path }}/restic forget {{ paths(item) }} {{ retention_pattern(item) }} {% if item.prune is defined and item.prune == true %}--prune{% endif %} {% if item.forget_extra_args is defined %}{{ item.forget_extra_args }}{% endif %} {{ forget_output_log }}
-if [[ $? -eq 0 ]]
+
+FORGET_EXIT_CODE=$?
+
+if [[ $FORGET_EXIT_CODE -eq 0 ]]
 then
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') OK" {{ forget_result_log }}
     {% if item.monitoring_call is defined %}
@@ -349,8 +358,10 @@ fi
 {% elif item.post_backup_cmd is defined %}
   {{ item.post_backup_cmd }} {{ post_backup_cmd_output_log }}
 {% endif %}
+
 {% if item.past_backup_cmd is defined or item.post_backup_cmd is defined %}
-if [[ $? -eq 0 ]]
+$POST_CMD_EXIT_CODE=$?
+if [[ $POST_CMD_EXIT_CODE -eq 0 ]]
 then
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') OK" {{ post_backup_cmd_result_log }}
 else
@@ -366,4 +377,9 @@ fi
 {% endif %}
 
 rm -f $pid # remove pid file just before exiting
-exit $BACKUP_EXIT_CODE
+
+if [[ $BACKUP_EXIT_CODE -ne 0 ]] || [[ $FORGET_EXIT_CODE -ne 0 ]] || [[ $POST_CMD_EXIT_CODE -ne 0 ]] || [[ $PRE_CMD_EXIT_CODE -ne 0 ]]; then
+  exit 1
+else
+  exit $BACKUP_EXIT_CODE
+fi
