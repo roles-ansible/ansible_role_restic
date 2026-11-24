@@ -1,5 +1,5 @@
 ---
-- name: (CONF)Initialize repository
+- name: (CONF) Initialize repository
   ansible.builtin.command: "{{ restic_install_path }}/restic init"
   environment:
     RESTIC_REPOSITORY: "{{ item.value.location }}"

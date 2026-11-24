@@ -40,7 +40,7 @@ export B2_ACCOUNT_KEY={{ restic_repos[item.repo].b2_account_key }}
 {% endif %}
 BACKUP_NAME={{ item.name }}
 {% if item.src is defined %}
-BACKUP_SOURCE={{ item.src }}
+BACKUP_SOURCE='{{ item.src | join(' ') if item.src is iterable and item.src is not string else item.src }}'
 {% endif %}
 {% if restic__cache_config | bool -%}
   export RESTIC_CACHE_DIR={{ restic__cache_dir }}
