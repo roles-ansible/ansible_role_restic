@@ -360,7 +360,7 @@ fi
 {% endif %}
 
 {% if item.past_backup_cmd is defined or item.post_backup_cmd is defined %}
-$POST_CMD_EXIT_CODE=$?
+POST_CMD_EXIT_CODE=$?
 if [[ $POST_CMD_EXIT_CODE -eq 0 ]]
 then
     echo "$(date -u '+%Y-%m-%d %H:%M:%S') OK" {{ post_backup_cmd_result_log }}
